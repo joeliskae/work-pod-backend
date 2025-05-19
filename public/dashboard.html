@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head><title>Varausjärjestelmä</title></head>
+<body>
+  <h1>Työskentelykopin varaus</h1>
+  <form id="bookingForm">
+    <label>Koppi:
+      <select name="calendarId">
+        <option value="59596f673673a4c675c2f8dc36245e1338b3470bcb7d7b08d4c67e793e941f87@group.calendar.google.com">Koppi 1</option>
+        <option value="c74deb30d3039fa279ead11aa732bcb23caf5d6b274935020cc9aee7b819b054@group.calendar.google.com">Koppi 2</option>
+      </select>
+    </label><br />
+    <label>Aloitus:
+      <input type="datetime-local" name="start" required />
+    </label><br />
+    <label>Loppu:
+      <input type="datetime-local" name="end" required />
+    </label><br />
+    <button type="submit">Varaa</button>
+  </form>
+  <div id="result"></div>
+  <a href="/logout">Kirjaudu ulos</a>
+
+  <script>
+    document.getElementById("bookingForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        calendarId: form.calendarId.value,
+        start: new Date(form.start.value).toISOString(),
+        end: new Date(form.end.value).toISOString(),
+      };
+
+      const res = await fetch("/api/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+      document.getElementById("result").innerText =
+        result.success ? `Varaus onnistui! ${result.link}` : `Virhe: ${result.error}`;
+    });
+  </script>
+
+<!-- Tsekataas varaukset -->
+
+<h2>Varatut kopit</h2>
+<button id="haeVaraukset">Hae tämän päivän varaukset</button>
+<ul id="varauksetLista"></ul>
+
+<script>
+  document.getElementById("haeVaraukset").addEventListener("click", async () => {
+    const today = new Date();
+    const start = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+    const end = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+
+    const calendarIds = [
+      "59596f673673a4c675c2f8dc36245e1338b3470bcb7d7b08d4c67e793e941f87@group.calendar.google.com",
+      "c74deb30d3039fa279ead11aa732bcb23caf5d6b274935020cc9aee7b819b054@group.calendar.google.com",
+    ];
+
+    const res = await fetch("/api/busy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ calendarIds, timeMin: start, timeMax: end })
+    });
+
+    const data = await res.json();
+    const lista = document.getElementById("varauksetLista");
+    lista.innerHTML = "";
+
+    if (data.success) {
+      for (const [koppi, tiedot] of Object.entries(data.busyTimes)) {
+        if (tiedot.busy.length > 0) {
+          tiedot.busy.forEach(varaus => {
+            const alkuaika = new Date(varaus.start).toLocaleTimeString("fi-FI", { hour: '2-digit', minute: '2-digit' });
+            const loppuaika = new Date(varaus.end).toLocaleTimeString("fi-FI", { hour: '2-digit', minute: '2-digit' });
+            const item = document.createElement("li");
+            item.textContent = `${koppi}: ${alkuaika} - ${loppuaika}`;
+            lista.appendChild(item);
+          });
+        } else {
+          const item = document.createElement("li");
+          item.textContent = `${koppi}: Ei varauksia`;
+          lista.appendChild(item);
+        }
+      }
+    } else {
+      lista.innerHTML = `<li>Virhe: ${data.error}</li>`;
+    }
+  });
+</script>
+</body>
+</html>

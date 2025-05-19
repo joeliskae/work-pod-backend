@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><title>Profiili</title></head>
+<body>
+  <h1>Tervetuloa takaisin!</h1>
+  <div id="user"></div>
+  <a href="/logout">Kirjaudu ulos</a>
+
+  <script>
+    fetch("/me")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("user").innerText =
+          `Olet kirjautunut nimellä ${data.name} (${data.email})`;
+      });
+  </script>
+</body>
+</html>
