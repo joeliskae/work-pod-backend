@@ -1,9 +1,22 @@
+// --- src/routes/v1.ts ---
 import { Router, Request, Response, NextFunction } from "express";
 import { google } from "googleapis";
-import { calendar } from "../services/googleCalendar";
-import { ensureAuthenticated } from "../middleware/auth";
+import path from "path";
+import { parseToFullCalendarFormat } from "../utils/calendar";
 
 const router = Router();
+
+// Google Calendar API setup
+const auth = new google.auth.GoogleAuth({
+  keyFile: path.join(__dirname, "../../service-account.json"),
+  scopes: ["https://www.googleapis.com/auth/calendar"],
+});
+const calendar = google.calendar({ version: "v3", auth });
+
+function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
+  if (req.isAuthenticated()) return next();
+  res.status(401).json({ error: "Unauthorized" });
+}
 
 // POST /api/v1/book
 router.post("/book", ensureAuthenticated, async (req, res) => {
@@ -49,4 +62,37 @@ router.post("/busy", ensureAuthenticated, async (req, res) => {
   }
 });
 
+// GET /api/v1/events
+router.get("/events", ensureAuthenticated, async function (req: Request, res: Response): Promise<void> {
+  const calendarId = req.query.calendarId;
+  const timeMin = req.query.timeMin;
+  const timeMax = req.query.timeMax;
+
+  if (
+    typeof calendarId !== "string" ||
+    typeof timeMin !== "string" ||
+    typeof timeMax !== "string"
+  ) {
+    res.status(400).json({ error: "Missing or invalid query parameters." });
+    return;
+  }
+
+  try {
+    const response = await calendar.events.list({
+      calendarId,
+      timeMin,
+      timeMax,
+      singleEvents: true,
+      orderBy: "startTime",
+    });
+
+    const items = response.data.items || [];
+    const parsed = parseToFullCalendarFormat(items);
+
+    res.json(parsed);
+  } catch (error: any) {
+    console.error("Virhe haettaessa kalenteritapahtumia:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 export default router;
