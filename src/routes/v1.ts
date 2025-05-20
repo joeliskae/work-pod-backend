@@ -14,9 +14,11 @@ const auth = new google.auth.GoogleAuth({
 const calendar = google.calendar({ version: "v3", auth });
 
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
+  if (process.env.NODE_ENV === "development") return next(); // kehitystilassa ohitetaan auth
   if (req.isAuthenticated()) return next();
   res.status(401).json({ error: "Unauthorized" });
 }
+
 
 // POST /api/v1/book
 router.post("/book", ensureAuthenticated, async (req, res) => {
@@ -62,8 +64,8 @@ router.post("/busy", ensureAuthenticated, async (req, res) => {
   }
 });
 
-// GET /api/v1/events
-router.get("/events", ensureAuthenticated, async function (req: Request, res: Response): Promise<void> {
+// POST /api/v1/events
+router.post("/events", ensureAuthenticated, async function (req: Request, res: Response): Promise<void> {
   const calendarId = req.query.calendarId;
   const timeMin = req.query.timeMin;
   const timeMax = req.query.timeMax;
@@ -78,13 +80,16 @@ router.get("/events", ensureAuthenticated, async function (req: Request, res: Re
   }
 
   try {
-    const response = await calendar.events.list({
-      calendarId,
-      timeMin,
-      timeMax,
-      singleEvents: true,
-      orderBy: "startTime",
-    });
+  const timeMinClean = timeMin.trim();
+  const timeMaxClean = timeMax.trim();
+
+  const response = await calendar.events.list({
+    calendarId,
+    timeMin: timeMinClean,
+    timeMax: timeMaxClean,
+    singleEvents: true,
+    orderBy: "startTime",
+  });
 
     const items = response.data.items || [];
     const parsed = parseToFullCalendarFormat(items);
