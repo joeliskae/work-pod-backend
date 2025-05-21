@@ -2,6 +2,8 @@
 
 Tämä API tarjoaa pääsyn työskentelykopin Google-kalentereihin varauksia varten.
 
+Käynnistä komennolla `npm run dev`
+
 ## Kalenteri ID
 
 Kalenteri id:nä toimii tällähetkellä koppien nimet.
