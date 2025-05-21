@@ -1,8 +1,8 @@
-// --- src/routes/v1.ts ---
 import { Router, Request, Response, NextFunction } from "express";
 import { google } from "googleapis";
 import path from "path";
 import { parseToFullCalendarFormat } from "../utils/calendar";
+import { calendarMap } from "../config/calendarMap";
 
 const router = Router();
 
@@ -14,19 +14,25 @@ const auth = new google.auth.GoogleAuth({
 const calendar = google.calendar({ version: "v3", auth });
 
 function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
-  if (process.env.NODE_ENV === "development") return next(); // kehitystilassa ohitetaan auth
+  if (process.env.NODE_ENV === "development") return next();
   if (req.isAuthenticated()) return next();
   res.status(401).json({ error: "Unauthorized" });
 }
 
-
 // POST /api/v1/book
-router.post("/book", ensureAuthenticated, async (req, res) => {
-  const { calendarId, start, end } = req.body;
+router.post("/book", ensureAuthenticated, async (req, res): Promise<void> => {
+  const alias = req.query.calendarId as string;
+  const calendarId = calendarMap[alias];
+  const { start, end } = req.body;
+
+  if (!calendarId || !start || !end) {
+    res.status(400).json({ error: "Missing or invalid parameters." });
+    return;
+  }
 
   try {
     const event = {
-      summary: `Kopin varaus – ${(req.user as any).displayName}`,
+      summary: `${(req.user as any)?.displayName ?? "Varattu"}`,
       start: { dateTime: start },
       end: { dateTime: end },
     };
@@ -44,8 +50,22 @@ router.post("/book", ensureAuthenticated, async (req, res) => {
 });
 
 // POST /api/v1/busy
-router.post("/busy", ensureAuthenticated, async (req, res) => {
+router.post("/busy", ensureAuthenticated, async (req: Request, res: Response): Promise<void> => {
   const { calendarIds, timeMin, timeMax } = req.body;
+
+  if (!Array.isArray(calendarIds) || !timeMin || !timeMax) {
+    res.status(400).json({ error: "Missing or invalid parameters." });
+    return;
+  }
+
+  const ids = calendarIds
+    .map((alias: string) => calendarMap[alias])
+    .filter((id): id is string => typeof id === "string");
+
+  if (ids.length === 0) {
+    res.status(400).json({ error: "No valid calendar IDs found." });
+    return;
+  }
 
   try {
     const response = await calendar.freebusy.query({
@@ -53,7 +73,7 @@ router.post("/busy", ensureAuthenticated, async (req, res) => {
         timeMin,
         timeMax,
         timeZone: "Europe/Helsinki",
-        items: calendarIds.map((id: string) => ({ id })),
+        items: ids.map((id) => ({ id })),
       },
     });
 
@@ -64,32 +84,29 @@ router.post("/busy", ensureAuthenticated, async (req, res) => {
   }
 });
 
-// POST /api/v1/events
-router.post("/events", ensureAuthenticated, async function (req: Request, res: Response): Promise<void> {
-  const calendarId = req.query.calendarId;
-  const timeMin = req.query.timeMin;
-  const timeMax = req.query.timeMax;
 
-  if (
-    typeof calendarId !== "string" ||
-    typeof timeMin !== "string" ||
-    typeof timeMax !== "string"
-  ) {
-    res.status(400).json({ error: "Missing or invalid query parameters." });
+
+// POST /api/v1/events
+router.post("/events", ensureAuthenticated, async (req, res): Promise<void> => {
+  const alias = req.query.calendarId as string;
+  const timeMin = (req.query.timeMin as string)?.trim();
+  const timeMax = (req.query.timeMax as string)?.trim();
+
+  const calendarId = calendarMap[alias];
+
+  if (!calendarId || !timeMin || !timeMax) {
+    res.status(400).json({ error: "Missing or invalid parameters." });
     return;
   }
 
   try {
-  const timeMinClean = timeMin.trim();
-  const timeMaxClean = timeMax.trim();
-
-  const response = await calendar.events.list({
-    calendarId,
-    timeMin: timeMinClean,
-    timeMax: timeMaxClean,
-    singleEvents: true,
-    orderBy: "startTime",
-  });
+    const response = await calendar.events.list({
+      calendarId,
+      timeMin,
+      timeMax,
+      singleEvents: true,
+      orderBy: "startTime",
+    });
 
     const items = response.data.items || [];
     const parsed = parseToFullCalendarFormat(items);
@@ -100,4 +117,11 @@ router.post("/events", ensureAuthenticated, async function (req: Request, res: R
     res.status(500).json({ error: error.message });
   }
 });
+
+// POST /api/v1/calendars
+router.post("/calendars", ensureAuthenticated, (req, res) => {
+  const aliases = Object.keys(calendarMap);
+  res.json({ calendars: aliases });
+});
+
 export default router;
