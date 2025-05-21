@@ -21,7 +21,7 @@ function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
 
 // POST /api/v1/book
 router.post("/book", ensureAuthenticated, async (req, res): Promise<void> => {
-  const alias = req.query.calendarId as string;
+  const alias = req.body.calendarId as string;
   const calendarId = calendarMap[alias];
   const { start, end } = req.body;
 
