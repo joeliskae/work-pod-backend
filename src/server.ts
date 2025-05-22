@@ -11,7 +11,7 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: "http://localhost:5173/", // frontin osoite
+  origin: "http://localhost:5173", // frontin osoite
   credentials: true,
 }));
 
