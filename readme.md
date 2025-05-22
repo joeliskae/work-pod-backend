@@ -96,6 +96,6 @@ Palauttaa kaikki käytettävissä olevat kalenterialias-nimet.
 
 ```json
 {
-  "calendars": ["C220-1", "C220-2", "C220-3", "C310-1", ...]
+  "calendars": ["C238-1", "C220-2", "C220-3", "C203-1", ...]
 }
 ```
