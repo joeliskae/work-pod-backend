@@ -6,10 +6,13 @@ Käynnistä komennolla `npm run dev`
 
 ## Kalenteri ID
 
-Kalenteri id:nä toimii tällähetkellä koppien nimet.
-Toistaiseksi käytössä on vain kalenterit kopeille.
-* C220-1
-* C220-2
+Kalenteri id:nä toimii tällähetkellä podien nimet.
+Toistaiseksi käytössä on vain kalenterit work podeille.
+* C238-1
+* C238-2
+* C238-3
+* C203-1
+* C203-2
 
 ## Endpoints
 
@@ -25,12 +28,12 @@ Luo varaus valittuun kalenteriin.
 
 ```json
 {
-  "calendarId": "C220-1",
+  "calendarId": "C228-1",
   "start": "2025-05-25T09:00:00+03:00",
   "end": "2025-05-25T10:00:00+03:00"
 }
 ```
-* calendarId: Lyhyt alias kalenterille (esim. C220-1).
+* calendarId: Lyhyt alias kalenterille.
 * start: Varaus alkaa ISO 8601 -aikamuodossa.
 * end: Varaus päättyy ISO 8601 -aikamuodossa.
 
@@ -54,7 +57,7 @@ Hakee yksittäisen kalenterin tapahtumat annetulta aikaväliltä. Palauttaa tied
 /events?calendarId=C220-1&timeMin=2025-05-15T00:00:00Z&timeMax=2025-05-22T00:00:00Z
 ```
 
-* calendarId: Kalenterin alias esim C220-1
+* calendarId: Kalenterin alias esim C238-1
 * timeMin: Haun alkuaika ISO 8601 -muodossa.
 * timeMax: Haun loppuaika ISO 8601 -muodossa.
 
