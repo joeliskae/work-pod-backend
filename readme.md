@@ -51,7 +51,7 @@ Hakee yksittäisen kalenterin tapahtumat annetulta aikaväliltä. Palauttaa tied
 **Pyyntö (query-parametrit)**
 
 ```
-/events?calendarId=C220-1&timeMin=2025-05-25T00:00:00+03:00&timeMax=2025-05-26T00:00:00+03:00
+/events?calendarId=C220-1&timeMin=2025-05-15T00:00:00Z&timeMax=2025-05-22T00:00:00Z
 ```
 
 * calendarId: Kalenterin alias esim C220-1
