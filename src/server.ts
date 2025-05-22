@@ -3,11 +3,17 @@ import dotenv from "dotenv";
 import passport from "passport";
 import session from "express-session";
 import v1Routes from "./routes/v1";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+app.use(cors({
+  origin: "http://localhost:5173/", // frontin osoite
+  credentials: true,
+}));
 
 app.use(session({
   secret: process.env.SESSION_SECRET || "secret",
