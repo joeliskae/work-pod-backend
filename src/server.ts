@@ -1,7 +1,5 @@
 import express from "express";
 import dotenv from "dotenv";
-import passport from "passport";
-import session from "express-session";
 import v1Routes from "./routes/v1";
 import cors from "cors";
 
@@ -15,13 +13,9 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use(session({
-  secret: process.env.SESSION_SECRET || "secret",
-  resave: false,
-  saveUninitialized: false,
-}));
-app.use(passport.initialize());
-app.use(passport.session());
+// Ei tarvita sessiota tai passportia!
+// app.use(session(...));
+// app.use(passport.initialize());
 
 app.use("/api/v1", v1Routes);
 
