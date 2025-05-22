@@ -37,7 +37,7 @@ router.post("/book", ensureAuthenticated, async (req, res): Promise<void> => {
       requestBody: event,
     });
 
-    console.log("Someone using /v1/book");
+    console.log(`[${new Date().toISOString()}] Someone using /v1/book`);
     res.json({ success: true, link: response.data.htmlLink });
   } catch (error: any) {
     console.error("Varaus epäonnistui:", error);
@@ -73,7 +73,7 @@ router.post("/busy", ensureAuthenticated, async (req: Request, res: Response): P
       },
     });
 
-    console.log("Someone using /v1/busy");
+    console.log(`[${new Date().toISOString()}] Someone using /v1/busy`);
     res.json({ success: true, busyTimes: response.data.calendars });
   } catch (error: any) {
     console.error("Virhe haettaessa varauksia:", error);
@@ -108,7 +108,7 @@ router.get("/events", ensureAuthenticated, async (req, res): Promise<void> => {
     const items = response.data.items || [];
     const parsed = parseToFullCalendarFormat(items);
 
-    console.log("Someone using /v1/events");
+    console.log(`[${new Date().toISOString()}] Someone using /v1/events`);
     res.json(parsed);
   } catch (error: any) {
     console.error("Virhe haettaessa kalenteritapahtumia:", error);
@@ -120,7 +120,7 @@ router.get("/events", ensureAuthenticated, async (req, res): Promise<void> => {
 // GET /api/v1/calendars
 router.get("/calendars", ensureAuthenticated, (req, res) => {
   const aliases = Object.keys(calendarMap);
-  console.log("Someone using /v1/calendars");
+  console.log(`[${new Date().toISOString()}] Someone using /v1/calendars`);
   res.json({ calendars: aliases });
 });
 
