@@ -1,18 +1,10 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { google } from "googleapis";
-import path from "path";
 import { parseToFullCalendarFormat } from "../utils/calendar";
 import { calendarMap } from "../config/calendarMap";
 import { ensureAuthenticated } from "../middleware/auth";
+import { calendar } from "../services/googleCalendar";
 
 const router = Router();
-
-// Google Calendar API setup
-const auth = new google.auth.GoogleAuth({
-  keyFile: path.join(__dirname, "../../service-account.json"),
-  scopes: ["https://www.googleapis.com/auth/calendar"],
-});
-const calendar = google.calendar({ version: "v3", auth });
 
 // POST /api/v1/book
 router.post("/book", ensureAuthenticated, async (req, res): Promise<void> => {
@@ -81,8 +73,6 @@ router.post("/busy", ensureAuthenticated, async (req: Request, res: Response): P
   }
 });
 
-
-
 // GET /api/v1/events
 router.get("/events", ensureAuthenticated, async (req, res): Promise<void> => {
   const alias = req.query.calendarId as string;
@@ -115,7 +105,6 @@ router.get("/events", ensureAuthenticated, async (req, res): Promise<void> => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 // GET /api/v1/calendars
 router.get("/calendars", ensureAuthenticated, (req, res) => {
