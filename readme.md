@@ -99,3 +99,34 @@ Palauttaa kaikki käytettävissä olevat kalenterialias-nimet.
   "calendars": ["C238-1", "C220-2", "C220-3", "C203-1", ...]
 }
 ```
+
+---
+
+### 4. GET /user-events
+
+Palauttaa kaikki kirjautuneen käyttäjän tekemät varaukset (kaikista kalentereista) seuraavan 60 päivän ajalta.
+
+Tämä toimii siten, että varauksen `description`-kenttään on aiemmin tallennettu käyttäjän sähköpostiosoite, ja tämä endpoint suodattaa kaikki tapahtumat, joissa `description` sisältää kyseisen sähköpostin.
+
+###  Autentikointi
+Vaatii sisäänkirjautumisen. `req.user.email` käytetään tapahtumien suodattamiseen.
+
+###  Parametrit
+Ei ota vastaan query-parametreja tai body-dataa.
+
+###  Response (200 OK)
+
+Palauttaa taulukon tapahtumista muodossa:
+
+```json
+[
+    {
+        "id": "2g0b6trhf202uq87pj4r567a80",
+        "calendarId": "C238-3",
+        "title": "Varattu",
+        "start": "2025-05-23T11:00:00+03:00",
+        "end": "2025-05-23T12:00:00+03:00",
+        "description": "user_email: user@lab.fi"
+    },
+    ...
+]
