@@ -20,6 +20,7 @@ router.post("/book", ensureAuthenticated, async (req, res): Promise<void> => {
   try {
     const event = {
       summary: `${(req.user as any)?.displayName ?? "Varattu"}`,
+      description: `user_email: ${(req.user as any)?.email}`,
       start: { dateTime: start },
       end: { dateTime: end },
     };
@@ -96,6 +97,7 @@ router.get("/events", ensureAuthenticated, async (req, res): Promise<void> => {
     });
 
     const items = response.data.items || [];
+    // console.log(items);
     const parsed = parseToFullCalendarFormat(items);
 
     console.log(`[${new Date().toISOString()}] Someone using /v1/events`);

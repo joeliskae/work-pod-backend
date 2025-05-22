@@ -4,7 +4,8 @@ export function parseToFullCalendarFormat(items: any[]): any[] {
     title: event.summary || "Ei otsikkoa",
     start: event.start?.dateTime || event.start?.date,
     end: event.end?.dateTime || event.end?.date,
-    allDay: !!event.start?.date,
-    url: event.htmlLink,
+    description: event.description || "",
+    // allDay: !!event.start?.date,
+    // url: event.htmlLink,
   }));
 }
