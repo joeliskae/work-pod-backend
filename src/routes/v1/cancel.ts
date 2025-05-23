@@ -43,7 +43,7 @@ router.delete("/cancel/:calendarId/:eventId", ensureAuthenticated, async (req, r
       eventId
     });
 
-    console.log(`[${timestamp}] ${userEmail} cancelled booking ${eventId}`);
+    // console.log(`[${timestamp}] ${userEmail} cancelled booking ${eventId}`);
     res.json({ success: true, message: "Booking cancelled successfully" });
 
   } catch (error: any) {
