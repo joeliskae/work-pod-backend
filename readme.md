@@ -2,7 +2,9 @@
 
 Tämä API tarjoaa pääsyn työskentelykopin Google-kalentereihin varauksia varten.
 
-Käynnistä komennolla `npm run dev`
+Käynnistä komennolla `pm2 start npm --name "bakkari-dev" -- run dev`
+
+Logi löytyy komennolla `pm2 log`
 
 ## Kalenteri ID
 
