@@ -133,6 +133,7 @@ Palauttaa taulukon tapahtumista muodossa:
     ...
 ]
 ```
+---
 
 ### 5. DELETE /cancel/calendarId/eventId
 
@@ -162,5 +163,30 @@ Tämä poistaa kopin C238-1 varauksen id:llä `2ifn2fif2ifn2fi` jos se on käytt
 {
   "success": true,
   "message": "Booking cancelled successfully"
+}
+```
+
+---
+
+### 6. GET /booking/calendarId/eventId
+
+Hakee yksittäisen varauksen tiedot annetusta kalenterista ja tapahtuma-ID:llä.
+
+**Pyyntö**
+
+esim.
+```ts
+/booking/C238-1/3sts3ts3t
+```
+
+**Vastaus**
+
+```json
+{
+  "name": "Maija Meikäläinen",
+  "room": "C238-1",
+  "date": "2025-05-24",
+  "start": "09:00",
+  "end": "10:00"
 }
 ```
