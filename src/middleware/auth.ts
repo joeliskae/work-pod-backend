@@ -37,6 +37,7 @@ export const ensureAuthenticated = asyncHandler(async (req: Request, res: Respon
     }
     
     // Lisää käyttäjätiedot requestiin (ei tallenneta mihinkään)
+    console.log(payload);
     (req as any).user = {
       email: payload.email,
       name: payload.name,

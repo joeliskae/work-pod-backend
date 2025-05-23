@@ -19,7 +19,7 @@ router.post("/book", ensureAuthenticated, async (req, res): Promise<void> => {
 
   try {
     const event = {
-      summary: `${(req.user as any)?.displayName ?? "Varattu"}`,
+      summary: `${(req.user as any)?.name ?? "Varattu"}`,
       description: `user_email: ${(req.user as any)?.email}`,
       start: { dateTime: start },
       end: { dateTime: end },
