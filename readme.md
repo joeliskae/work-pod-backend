@@ -110,13 +110,13 @@ Palauttaa kaikki kirjautuneen käyttäjän tekemät varaukset (kaikista kalenter
 
 Tämä toimii siten, että varauksen `description`-kenttään on aiemmin tallennettu käyttäjän sähköpostiosoite, ja tämä endpoint suodattaa kaikki tapahtumat, joissa `description` sisältää kyseisen sähköpostin.
 
-###  Autentikointi
+**Autentikointi**
 Vaatii sisäänkirjautumisen. `req.user.email` käytetään tapahtumien suodattamiseen.
 
-###  Parametrit
+**Parametrit**
 Ei ota vastaan query-parametreja tai body-dataa.
 
-###  Response (200 OK)
+**Response (200 OK)**
 
 Palauttaa taulukon tapahtumista muodossa:
 
@@ -132,3 +132,35 @@ Palauttaa taulukon tapahtumista muodossa:
     },
     ...
 ]
+```
+
+### 5. DELETE /cancel/calendarId/eventId
+
+Peru varauksesi work pod kalenterista. Tämä endpoint poistaa Google Calendar -tapahtuman, jos se kuuluu kirjautuneelle käyttäjälle.
+
+Tapahtuman description-kentän on sisällettävä rivi user_email: käyttäjän.sähköposti@esimerkki.fi ja pyyntö menee läpi vain jos käyttäjän ja varauksen sähköpostit ovat samat.
+
+**Pyyntö**
+
+```ts
+/cancel/calendarId/eventId
+```
+
+esim.
+
+```ts
+/cancel/C238-1/2ifn2fif
+```
+
+Tämä poistaa kopin C238-1 varauksen id:llä `2ifn2fif2ifn2fi` jos se on käyttäjän tekemä.
+
+**HUOM** - Jos `eventId` jätetään antamatta, endpoint poistaa kaikki käyttäjän varaukset.
+
+**Vastaus**
+
+```json
+{
+  "success": true,
+  "message": "Booking cancelled successfully"
+}
+```
