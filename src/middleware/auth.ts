@@ -31,7 +31,7 @@ export const ensureAuthenticated = asyncHandler(async (req: Request, res: Respon
     
     const payload = ticket.getPayload();
     if (!payload) {
-      console.log("[Auth] Invalid token payload");
+      // console.log("[Auth] Invalid token payload");
       res.status(401).json({ error: "Invalid token" });
       return;
     }
