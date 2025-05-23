@@ -33,7 +33,6 @@ router.post("/busy", ensureAuthenticated, async (req: Request, res: Response): P
       },
     });
 
-    console.log(`[${new Date().toISOString()}] Someone using /v1/busy`);
     res.json({ success: true, busyTimes: response.data.calendars });
   } catch (error: any) {
     console.error("Virhe haettaessa varauksia:", error);

@@ -44,7 +44,6 @@ router.get("/user-events", ensureAuthenticated, async (req, res): Promise<void> 
       results.push(...matching);
     }
 
-    console.log(`[${new Date().toISOString()}] Someone using /v1/user-events`);
     res.json(results);
   } catch (error: any) {
     console.error("Virhe haettaessa käyttäjän varauksia:", error);

@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import v1Routes from "./routes/v1";
 import cors from "cors";
+import { requestLogger } from "./middleware/requestLogger";
 
 dotenv.config();
 
@@ -13,9 +14,7 @@ app.use(cors({
   credentials: true,
 }));
 
-// Ei tarvita sessiota tai passportia!
-// app.use(session(...));
-// app.use(passport.initialize());
+app.use(requestLogger);
 
 app.use("/api/v1", v1Routes);
 

@@ -29,7 +29,6 @@ router.post("/book", ensureAuthenticated, async (req, res): Promise<void> => {
       requestBody: event,
     });
 
-    console.log(`[${new Date().toISOString()}] Someone using /v1/book`);
     res.json({ success: true, link: response.data.htmlLink });
   } catch (error: any) {
     console.error("Varaus epäonnistui:", error);

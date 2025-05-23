@@ -32,7 +32,6 @@ router.get("/events", ensureAuthenticated, async (req, res): Promise<void> => {
     // console.log(items);
     const parsed = parseToFullCalendarFormat(items);
 
-    console.log(`[${new Date().toISOString()}] Someone using /v1/events`);
     res.json(parsed);
   } catch (error: any) {
     console.error("Virhe haettaessa kalenteritapahtumia:", error);

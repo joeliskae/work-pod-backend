@@ -8,7 +8,6 @@ const router = Router();
 // DELETE /api/v1/cancel/:calendarId/:eventId
 router.delete("/cancel/:calendarId/:eventId", ensureAuthenticated, async (req, res): Promise<void> => {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] Someone using /v1/cancel`);
 
   const alias = req.params.calendarId;
   const eventId = req.params.eventId;
