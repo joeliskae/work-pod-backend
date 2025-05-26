@@ -26,6 +26,8 @@ Api kuuntelee osoitteessa `http://localhost:3000/api/v1`
 
 Luo varaus valittuun kalenteriin.
 
+Varausta tehdessä endpoint tarkistaa ettei kalenterissa ole jo varausta, ja palauttaa virheilmoituksen jos näin on.
+
 **Pyyntö (JSON body):**
 
 ```json
@@ -49,7 +51,7 @@ Luo varaus valittuun kalenteriin.
 ```
 ---
 
-### 2. POST `/events`
+### 2. GET `/events`
 
 Hakee yksittäisen kalenterin tapahtumat annetulta aikaväliltä. Palauttaa tiedot FullCalendar.js -formaatissa.
 
@@ -92,7 +94,7 @@ esim:
 
 ---
 
-### 3. POST `/calendars`
+### 3. GET `/calendars`
 
 Palauttaa kaikki käytettävissä olevat kalenterialias-nimet.
 
