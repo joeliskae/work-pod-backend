@@ -1,5 +1,3 @@
-// src/routes/book.ts
-
 import { Router } from "express";
 import { calendarMap } from "../../config/calendarMap";
 import { ensureAuthenticated } from "../../middleware/auth";
@@ -72,7 +70,7 @@ router.post("/book", ensureAuthenticated, async (req, res): Promise<void> => {
 
     const event = {
       summary: `${(req.user as any)?.name ?? "Varattu"}`,
-      description: `user_email: ${(req.user as any)?.email}`,
+      description: `${(req.user as any)?.email}`,
       start: { dateTime: start },
       end: { dateTime: end },
     };

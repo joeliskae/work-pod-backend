@@ -1,8 +1,10 @@
-import { Router} from "express";
+import { Router } from "express";
 import { parseToFullCalendarFormat } from "../../utils/calendar";
 import { calendarMap } from "../../config/calendarMap";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { calendar } from "../../services/googleCalendar";
+import { getCachedEvents, setCachedEvents } from "../../cache/calendarCache";
+import { calendar_v3 } from "googleapis";
 
 const router = Router();
 
@@ -20,18 +22,36 @@ router.get("/events", ensureAuthenticated, async (req, res): Promise<void> => {
   }
 
   try {
-    const response = await calendar.events.list({
-      calendarId,
-      timeMin,
-      timeMax,
-      singleEvents: true,
-      orderBy: "startTime",
-    });
+    let events: calendar_v3.Schema$Event[] = [];
 
-    const items = response.data.items || [];
-    // console.log(items);
-    const parsed = parseToFullCalendarFormat(items);
+    // 1. Yritetään hakea välimuistista
+    const cached = getCachedEvents(calendarId);
 
+    if (cached) {
+      // 2. Filtteröidään välimuistin eventit annettuun aikaväliin
+      const minDate = new Date(timeMin);
+      const maxDate = new Date(timeMax);
+
+      events = cached.events.filter((event) => {
+        const eventStart = new Date(event.start?.dateTime || event.start?.date || "");
+        const eventEnd = new Date(event.end?.dateTime || event.end?.date || "");
+        return eventEnd > minDate && eventStart < maxDate;
+      });
+    } else {
+      // 3. Jos cache puuttuu tai on vanhentunut, haetaan Googlelta ja tallennetaan
+      const response = await calendar.events.list({
+        calendarId,
+        timeMin,
+        timeMax,
+        singleEvents: true,
+        orderBy: "startTime",
+      });
+
+      events = response.data.items || [];
+      await setCachedEvents(calendarId, events);
+    }
+
+    const parsed = parseToFullCalendarFormat(events);
     res.json(parsed);
   } catch (error: any) {
     console.error("Virhe haettaessa kalenteritapahtumia:", error);

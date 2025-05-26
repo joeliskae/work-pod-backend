@@ -3,7 +3,7 @@ type CalendarCacheEntry = {
   lastFetched: Date;
 };
 
-const CACHE_TTL_MS = 1000 * 60 * 60; // 60 minuuttia kunnes cache vanhenee
+const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // cache on elossa 24h sen pyyntöhetkestä eteenpäin.
 
 export const calendarCache: Map<string, CalendarCacheEntry> = new Map();
 
