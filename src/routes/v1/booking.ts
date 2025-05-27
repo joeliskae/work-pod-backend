@@ -24,7 +24,7 @@ router.get("/booking/:calendarId/:eventId", ensureAuthenticated, async (req, res
     });
 
     const description = event.data.description || "";
-    const isOwner = description.includes(`user_email: ${userEmail}`);
+    const isOwner = description.includes(`${userEmail}`);
 
     if (!isOwner) {
       res.status(403).json({ error: "Not authorized to view this booking" });
