@@ -32,6 +32,8 @@ router.get("/events", ensureAuthenticated, async (req, res): Promise<void> => {
       const minDate = new Date(timeMin);
       const maxDate = new Date(timeMax);
 
+      req.cacheHit = true;
+
       events = cached.events.filter((event) => {
         const eventStart = new Date(event.start?.dateTime || event.start?.date || "");
         const eventEnd = new Date(event.end?.dateTime || event.end?.date || "");

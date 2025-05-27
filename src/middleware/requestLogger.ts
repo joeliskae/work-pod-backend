@@ -29,19 +29,19 @@ export function requestLogger(req: Request, res: Response, next: NextFunction) {
     const durationMs = Date.now() - start;
 
     const userEmail = (req.user as any)?.email || "anonymous";
-    const paddedEmail = padRight(userEmail,30);  // 25 merkkiä leveä kenttä
+    const paddedEmail = padRight(userEmail, 30);
 
-    const method = req.method.padEnd(6, " ");    // 6 merkkiä leveä kenttä, esim "DELETE", "POST  ", "GET   "
+    const method = req.method.padEnd(6, " ");
 
-    const pathOnly = shortenAndPad((req.path), 25);
-    // const pathOnly = req.path.padEnd(25, " ");   // Tässä 15 merkkiä polun kentälle, voit säätää tarpeen mukaan
+    const pathOnly = shortenAndPad(req.path, 25);
 
-    const statusCode = padLeft(res.statusCode.toString(), 3); // 3 merkkiä oikealle tasattu
+    const statusCode = padLeft(res.statusCode.toString(), 3);
 
-    const duration = padLeft(durationMs.toString() + "ms", 6); // 6 merkkiä oikealle tasattu
+    const duration = padLeft(durationMs.toString() + "ms", 6);
 
-    // Koko rivi: aika, sähköposti, metodi, polku, statuskoodi ja kesto aina samalla kohdalla
-    const logLine = `[${new Date().toISOString()}] ${paddedEmail} | ${method} ${pathOnly} | code: ${statusCode} - time: ${duration}`;
+    const cacheInfo = req.cacheHit ? " [cache]" : "";
+
+    const logLine = `[${new Date().toISOString()}] ${paddedEmail} | ${method} ${pathOnly} | code: ${statusCode} - time: ${duration} ${cacheInfo}`;
 
     console.log(logLine);
   });
