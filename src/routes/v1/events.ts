@@ -5,11 +5,12 @@ import { ensureAuthenticated } from "../../middleware/auth";
 import { calendar } from "../../services/googleCalendar";
 import { getCachedEvents, setCachedEvents } from "../../cache/calendarCache";
 import { calendar_v3 } from "googleapis";
+import { spamGuard } from "../../middleware/spamGuard";
 
 const router = Router();
 
 // GET /api/v1/events
-router.get("/events", ensureAuthenticated, async (req, res): Promise<void> => {
+router.get("/events", ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
   const alias = req.query.calendarId as string;
   const timeMin = (req.query.timeMin as string)?.trim();
   const timeMax = (req.query.timeMax as string)?.trim();

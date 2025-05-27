@@ -39,9 +39,11 @@ export function requestLogger(req: Request, res: Response, next: NextFunction) {
 
     const duration = padLeft(durationMs.toString() + "ms", 6);
 
+    // Merkit cache-hitille ja spamGuardille
     const cacheInfo = req.cacheHit ? " [cache]" : "";
+    const blockedTag = (res.locals.blocked === true) ? " [spam]" : "";
 
-    const logLine = `[${new Date().toISOString()}] ${paddedEmail} | ${method} ${pathOnly} | code: ${statusCode} - time: ${duration} ${cacheInfo}`;
+    const logLine = `[${new Date().toISOString()}] ${paddedEmail} | ${method} ${pathOnly} | code: ${statusCode} - time: ${duration} ${cacheInfo}${blockedTag}`;
 
     console.log(logLine);
   });
