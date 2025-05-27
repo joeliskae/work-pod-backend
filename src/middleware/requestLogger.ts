@@ -1,4 +1,5 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
+import { AuthenticatedRequest } from "../types/auth";
 
 function padRight(str: string, length: number): string {
   if (str.length >= length) {
@@ -22,13 +23,13 @@ function shortenAndPad(str: string, maxLen: number): string {
 }
 
 
-export function requestLogger(req: Request, res: Response, next: NextFunction) {
+export function requestLogger(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   const start = Date.now();
 
   res.on("finish", () => {
     const durationMs = Date.now() - start;
 
-    const userEmail = (req.user as any)?.email || "anonymous";
+    const userEmail = (req.user)?.email || "anonymous";
     const paddedEmail = padRight(userEmail, 30);
 
     const method = req.method.padEnd(6, " ");

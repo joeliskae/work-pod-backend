@@ -2,15 +2,16 @@ import { Router } from "express";
 import { calendarMap } from "../../config/calendarMap";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { calendar } from "../../services/googleCalendar";
+import { AuthenticatedRequest } from "../../types/auth";
 
 const router = Router();
 
 // GET /api/v1/booking/:calendarId/:eventId
-router.get("/booking/:calendarId/:eventId", ensureAuthenticated, async (req, res): Promise<void> => {
+router.get("/booking/:calendarId/:eventId", ensureAuthenticated, async (req: AuthenticatedRequest, res): Promise<void> => {
   const alias = req.params.calendarId;
   const eventId = req.params.eventId;
   const calendarId = calendarMap[alias];
-  const userEmail = (req.user as any)?.email;
+  const userEmail = (req.user)?.email;
 
   if (!calendarId || !eventId || !userEmail) {
     res.status(400).json({ error: "Missing calendarId, eventId, or user info" });
@@ -44,15 +45,24 @@ router.get("/booking/:calendarId/:eventId", ensureAuthenticated, async (req, res
 
     res.json(response);
 
-  } catch (error: any) {
-    console.error("Virhe varauksen haussa:", error);
+} catch (error) {
+  console.error("Virhe varauksen haussa:", error);
 
-    if (error.code === 404) {
+  if (error instanceof Error) {
+    // Jos error on Error-tyyppi, tarkistetaan onko 'code' siinä (tyyppiturvallisesti)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const anyError = error as any; // pakko olla any???
+    if (anyError.code === 404) {
       res.status(404).json({ error: "Booking not found" });
     } else {
       res.status(500).json({ error: error.message });
     }
+  } else {
+    // Jos error ei ole Error-tyyppiä, lähetetään geneerinen virheviesti
+    res.status(500).json({ error: "Tuntematon virhe" });
   }
+}
+
 });
 
 export default router;

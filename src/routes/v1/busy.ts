@@ -34,10 +34,16 @@ router.post("/busy", ensureAuthenticated, async (req: Request, res: Response): P
     });
 
     res.json({ success: true, busyTimes: response.data.calendars });
-  } catch (error: any) {
-    console.error("Virhe haettaessa varauksia:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+    } catch (error: unknown) {
+      console.error("Virhe haettaessa varauksia:", error);
+
+      if (typeof error === "object" && error !== null && "message" in error) {
+        res.status(500).json({ success: false, error: (error as { message: string }).message });
+      } else {
+        res.status(500).json({ success: false, error: "Tuntematon virhe" });
+      }
+    }
+
 });
 
 export default router;

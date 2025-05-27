@@ -25,6 +25,7 @@ router.get("/events", ensureAuthenticated, spamGuard, async (req, res): Promise<
   try {
     let events: calendar_v3.Schema$Event[] = [];
 
+
     // 1. Yritetään hakea välimuistista
     const cached = getCachedEvents(calendarId);
 
@@ -56,10 +57,15 @@ router.get("/events", ensureAuthenticated, spamGuard, async (req, res): Promise<
 
     const parsed = parseToFullCalendarFormat(events);
     res.json(parsed);
-  } catch (error: any) {
-    console.error("Virhe haettaessa kalenteritapahtumia:", error);
-    res.status(500).json({ error: error.message });
-  }
+    } catch (error: unknown) {
+      console.error("Virhe haettaessa kalenteritapahtumia:", error);
+
+      if (typeof error === "object" && error !== null && "message" in error) {
+        res.status(500).json({ error: (error as { message: string }).message });
+      } else {
+        res.status(500).json({ error: "Tuntematon virhe" });
+      }
+    }
 });
 
 export default router;

@@ -3,12 +3,14 @@ import { calendarMap } from "../../config/calendarMap";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { calendar } from "../../services/googleCalendar";
 import { getCachedEvents, setCachedEvents } from "../../cache/calendarCache";
+import { AuthenticatedRequest } from "../../types/auth";
+import { UserEvent } from "../../types/calendar";
 
 const router = Router();
 
 // GET /api/v1/user-events
-router.get("/user-events", ensureAuthenticated, async (req, res): Promise<void> => {
-  const userEmail = (req.user as any)?.email;
+router.get("/user-events", ensureAuthenticated, async (req: AuthenticatedRequest, res): Promise<void> => {
+  const userEmail = (req.user)?.email;
 
   if (!userEmail) {
     res.status(400).json({ error: "User email not available." });
@@ -19,7 +21,7 @@ router.get("/user-events", ensureAuthenticated, async (req, res): Promise<void> 
   const timeMin = now.toISOString();
   const timeMax = new Date(now.getTime() + 1000 * 60 * 60 * 24 * 30).toISOString(); // 30 päivää eteenpäin
 
-  const results: any[] = [];
+  const results: UserEvent[] = [];
 
   try {
     for (const alias of Object.keys(calendarMap)) {
@@ -63,10 +65,16 @@ router.get("/user-events", ensureAuthenticated, async (req, res): Promise<void> 
     }
 
     res.json(results);
-  } catch (error: any) {
-    console.error("Virhe haettaessa käyttäjän varauksia:", error);
-    res.status(500).json({ error: error.message });
-  }
+    } catch (error: unknown) {
+      console.error("Virhe haettaessa käyttäjän varauksia:", error);
+
+      if (typeof error === "object" && error !== null && "message" in error) {
+        res.status(500).json({ error: (error as { message: string }).message });
+      } else {
+        res.status(500).json({ error: "Tuntematon virhe" });
+      }
+    }
+
 });
 
 export default router;

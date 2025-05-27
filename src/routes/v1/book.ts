@@ -3,11 +3,13 @@ import { calendarMap } from "../../config/calendarMap";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { calendar } from "../../services/googleCalendar";
 import { setCachedEvents } from "../../cache/calendarCache";
+import { CalendarEvent } from "../../types/calendar";
+import { AuthenticatedRequest } from "../../types/auth";
 
 const router = Router();
 
 // Apufunktio joka tarkistaa onko kalenteri varattu
-async function checkAvailability(calendarId: string, start: string, end: string): Promise<{ available: boolean, conflictingEvents?: any[] }> {
+async function checkAvailability(calendarId: string, start: string, end: string): Promise<{ available: boolean, conflictingEvents?: CalendarEvent[] }> {
   try {
     const response = await calendar.events.list({
       calendarId,
@@ -17,7 +19,7 @@ async function checkAvailability(calendarId: string, start: string, end: string)
       orderBy: 'startTime',
     });
 
-    const events = response.data.items || [];
+    const events: CalendarEvent[] = response.data.items || [];
     
     // Filtteröidään pois peruutetut tapahtumat
     const activeEvents = events.filter(event => event.status !== 'cancelled');
@@ -28,8 +30,8 @@ async function checkAvailability(calendarId: string, start: string, end: string)
         conflictingEvents: activeEvents.map(event => ({
           id: event.id,
           summary: event.summary,
-          start: event.start?.dateTime || event.start?.date,
-          end: event.end?.dateTime || event.end?.date,
+          start: event.start || event.start,
+          end: event.end || event.end,
         }))
       };
     }
@@ -41,7 +43,7 @@ async function checkAvailability(calendarId: string, start: string, end: string)
   }
 }
 
-router.post("/book", ensureAuthenticated, async (req, res): Promise<void> => {
+router.post("/book", ensureAuthenticated, async (req: AuthenticatedRequest, res): Promise<void> => {
   const alias = req.body.calendarId as string;
   const calendarId = calendarMap[alias];
   const { start, end } = req.body;
@@ -69,8 +71,8 @@ router.post("/book", ensureAuthenticated, async (req, res): Promise<void> => {
     }
 
     const event = {
-      summary: `${(req.user as any)?.name ?? "Varattu"}`,
-      description: `${(req.user as any)?.email}`,
+      summary: `${(req.user)?.name ?? "Varattu"}`,
+      description: `${(req.user)?.email}`,
       start: { dateTime: start },
       end: { dateTime: end },
     };
@@ -93,13 +95,15 @@ router.post("/book", ensureAuthenticated, async (req, res): Promise<void> => {
     setCachedEvents(calendarId, events);
 
     res.json({ success: true, link: response.data.htmlLink });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Varaus epäonnistui:", error);
 
-    if (error.message.includes('saatavuuden tarkistus')) {
-      res.status(500).json({ success: false, error: "Kalenterin tarkistus epäonnistui. Yritä uudelleen." });
+    if (error instanceof Error) {
+      console.error("Virhe: ", error.message);
+      res.status(500).json({ error: error.message });
     } else {
-      res.status(500).json({ success: false, error: error.message });
+      console.error("Tuntematon virhe: ", error);
+      res.status(500).json({ error: "Tuntematon virhe" });
     }
   }
 });

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { OAuth2Client } from "google-auth-library";
+import { AuthenticatedRequest } from "../types/auth";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -38,7 +39,7 @@ export const ensureAuthenticated = asyncHandler(async (req: Request, res: Respon
     
     // Lisää käyttäjätiedot requestiin (ei tallenneta mihinkään)
     // console.log(payload);
-    (req as any).user = {
+    (req as AuthenticatedRequest).user = {
       email: payload.email,
       name: payload.name,
       googleId: payload.sub,
