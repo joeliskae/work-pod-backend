@@ -19,7 +19,12 @@ async function showDbContents() {
   for (const { name } of tables) {
     console.log(`\n📄 Taulu: \x1b[1m${name}\x1b[0m`);
 
-    const rows = await db.all(`SELECT * FROM ${name} LIMIT 100`);
+    const rows = await db.all(
+        `SELECT * FROM (
+        SELECT * FROM ${name} ORDER BY id DESC LIMIT 10
+        ) sub ORDER BY id ASC`
+    );
+    
     if (rows.length === 0) {
       console.log("   (ei rivejä)");
     } else {
