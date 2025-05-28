@@ -1,11 +1,12 @@
-import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
+
+import express from "express";
 import v1Routes from "./routes/v1";
 import cors from "cors";
 import { requestLogger } from "./middleware/requestLogger";
 import { warmUpCache } from "./services/cacheWarmup";
 
-dotenv.config();
 
 const app = express();
 app.use(express.json());
