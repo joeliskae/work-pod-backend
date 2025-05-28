@@ -8,7 +8,8 @@
     "build": "tsc",
     "lint": "eslint . --ext .ts",
     "start": "node dist/server.js",
-    "init-db": "tsx src/scripts/init-db.ts"
+    "init-db": "tsx src/scripts/init-db.ts",
+    "show-db": "tsx src/scripts/show-db.ts"
   },
   "keywords": [],
   "author": "",

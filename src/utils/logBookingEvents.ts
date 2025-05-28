@@ -13,6 +13,13 @@ export type ReservationEvent = {
   end: Date;
 };
 
+import { calendarMap } from "../config/calendarMap";
+
+  export function getAliasFromCalendarId(calendarId: string): string | undefined {
+    return Object.keys(calendarMap).find(alias => calendarMap[alias] === calendarId);
+}
+
+
 export async function logBookingEvent(event: ReservationEvent): Promise<void> {
   try {
     const db = await dbPromise;
@@ -22,7 +29,7 @@ export async function logBookingEvent(event: ReservationEvent): Promise<void> {
        VALUES (?, ?, ?, ?)`,
       [
         event.action,
-        event.calendarId,
+        getAliasFromCalendarId(event.calendarId),
         event.start.toISOString(),
         event.end.toISOString(),
       ]
