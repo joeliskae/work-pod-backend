@@ -1,15 +1,24 @@
 # Work Pod Varausjärjestelmän API v1
 
-Tämä API tarjoaa pääsyn työskentelykopin Google-kalentereihin varauksia varten.
+Tämä API tarjoaa pääsyn Work Podien Google-kalentereihin varauksia varten.
 
-Käynnistä komennolla `pm2 start npm --name "bakkari-dev" -- run dev`
+Asenna riippuvuudet komennolla `npm install`
+
+Ennen ensimmäistä käynnistyskertaa aja komento `npm run init-db`
+
+Tämä luo projektinjuureen `SQLite` tietokannan jota palvelu tarvitsee
+
+Käynnistä komennolla `pm2 start npm --name "bakkari-dev" -- run dev` tai `npm run dev`
 
 Logi löytyy komennolla `pm2 log`
+
+Anonyymin analytiikan keräystä voi testata komennolla `npm run show-db`
 
 ## Kalenteri ID
 
 Kalenteri id:nä toimii tällähetkellä podien nimet.
 Toistaiseksi käytössä on vain kalenterit work podeille.
+Tätä tarjoillaan myös endpointista /calendars
 * C238-1
 * C238-2
 * C238-3

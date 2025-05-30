@@ -51,7 +51,7 @@ router.get("/booking/:calendarId/:eventId", ensureAuthenticated, async (req: Aut
   if (error instanceof Error) {
     // Jos error on Error-tyyppi, tarkistetaan onko 'code' siinä (tyyppiturvallisesti)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anyError = error as any; // pakko olla any???
+    const anyError = error as any;
     if (anyError.code === 404) {
       res.status(404).json({ error: "Booking not found" });
     } else {

@@ -5,6 +5,7 @@ import { calendar } from "../../services/googleCalendar";
 import { setCachedEvents } from "../../cache/calendarCache";
 import { CalendarEvent } from "../../types/calendar";
 import { AuthenticatedRequest } from "../../types/auth";
+import { logBookingEvent } from "../../utils/logBookingEvents";
 
 const router = Router();
 
@@ -81,6 +82,15 @@ router.post("/book", ensureAuthenticated, async (req: AuthenticatedRequest, res)
       calendarId,
       requestBody: event,
     });
+
+    // Kerätään anonyymiä usage dataa
+    logBookingEvent({
+      action: 'created',
+      calendarId,
+      start: new Date(start),
+      end: new Date(end)
+    });
+
 
     // Haetaan uudet tapahtumat ja päivitetään välimuisti
     const refreshed = await calendar.events.list({

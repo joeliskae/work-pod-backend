@@ -7,7 +7,9 @@
     "dev": "cross-env NODE_ENV=development ts-node-dev --respawn src/server.ts",
     "build": "tsc",
     "lint": "eslint . --ext .ts",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "init-db": "tsx src/scripts/init-db.ts",
+    "show-db": "tsx src/scripts/show-db.ts"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +23,9 @@
     "google-auth-library": "^9.15.1",
     "googleapis": "^148.0.0",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
