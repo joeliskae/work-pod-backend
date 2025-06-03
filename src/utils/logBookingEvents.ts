@@ -1,10 +1,11 @@
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 
-const dbPromise = open({
-  filename: './usage.sqlite',
-  driver: sqlite3.Database,
-});
+// TODO: poista maybe
+// const dbPromise = open({
+//   filename: './usage.sqlite',
+//   driver: sqlite3.Database,
+// });
 
 export type ReservationEvent = {
   action: 'created' | 'deleted';

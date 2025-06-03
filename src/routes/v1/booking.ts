@@ -46,7 +46,7 @@ router.get("/booking/:calendarId/:eventId", ensureAuthenticated, async (req: Aut
     res.json(response);
 
 } catch (error) {
-  console.error("Virhe varauksen haussa:", error);
+  console.error(`[${new Date().toISOString()}] Virhe varauksen haussa: `, error);
 
   if (error instanceof Error) {
     // Jos error on Error-tyyppi, tarkistetaan onko 'code' siinä (tyyppiturvallisesti)

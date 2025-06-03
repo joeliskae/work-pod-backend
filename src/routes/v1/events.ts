@@ -58,7 +58,7 @@ router.get("/events", ensureAuthenticated, spamGuard, async (req, res): Promise<
     const parsed = parseToFullCalendarFormat(events);
     res.json(parsed);
     } catch (error: unknown) {
-      console.error("Virhe haettaessa kalenteritapahtumia:", error);
+      console.error(`[${new Date().toISOString()}] Virhe haettaessa kalenteritapahtumia: `, error);
 
       if (typeof error === "object" && error !== null && "message" in error) {
         res.status(500).json({ error: (error as { message: string }).message });

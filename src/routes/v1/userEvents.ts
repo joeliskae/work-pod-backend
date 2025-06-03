@@ -66,7 +66,7 @@ router.get("/user-events", ensureAuthenticated, async (req: AuthenticatedRequest
 
     res.json(results);
     } catch (error: unknown) {
-      console.error("Virhe haettaessa käyttäjän varauksia:", error);
+      console.error(`[${new Date().toISOString()}] Virhe haettaessa käyttäjän varauksia: `, error);
 
       if (typeof error === "object" && error !== null && "message" in error) {
         res.status(500).json({ error: (error as { message: string }).message });

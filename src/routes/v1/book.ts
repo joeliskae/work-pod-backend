@@ -106,13 +106,13 @@ router.post("/book", ensureAuthenticated, async (req: AuthenticatedRequest, res)
 
     res.json({ success: true, link: response.data.htmlLink });
   } catch (error) {
-    console.error("Varaus epäonnistui:", error);
+    console.error(`[${new Date().toISOString()}] Varaus epäonnistui: `, error);
 
     if (error instanceof Error) {
-      console.error("Virhe: ", error.message);
+      console.error(`[${new Date().toISOString()}] Virhe: `, error.message);
       res.status(500).json({ error: error.message });
     } else {
-      console.error("Tuntematon virhe: ", error);
+      console.error(`[${new Date().toISOString()}] Tuntematon virhe: `, error);
       res.status(500).json({ error: "Tuntematon virhe" });
     }
   }

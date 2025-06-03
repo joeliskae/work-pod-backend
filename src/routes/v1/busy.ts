@@ -35,7 +35,7 @@ router.post("/busy", ensureAuthenticated, async (req: Request, res: Response): P
 
     res.json({ success: true, busyTimes: response.data.calendars });
     } catch (error: unknown) {
-      console.error("Virhe haettaessa varauksia:", error);
+      console.error(`[${new Date().toISOString()}] Virhe varauksen haussa: `, error);
 
       if (typeof error === "object" && error !== null && "message" in error) {
         res.status(500).json({ success: false, error: (error as { message: string }).message });

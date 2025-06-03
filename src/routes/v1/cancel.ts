@@ -69,7 +69,7 @@ router.delete("/cancel/:calendarId/:eventId", ensureAuthenticated, async (req: A
     res.json({ success: true, message: "Booking cancelled successfully" });
 
   } catch (error: unknown) {
-    console.error("Varauksen peruutus epäonnistui:", error);
+    console.error(`[${new Date().toISOString()}] Varauksen peruutus epäonnistui:`, error);
 
     if (typeof error === "object" && error !== null) {
       const err = error as { code?: number; message?: string };
