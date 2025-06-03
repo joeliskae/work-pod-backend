@@ -19,10 +19,22 @@ import { calendarMap } from "../config/calendarMap";
     return Object.keys(calendarMap).find(alias => calendarMap[alias] === calendarId);
 }
 
+let db: Awaited<ReturnType<typeof open>> | null = null;
+
+async function getDb() {
+  if (!db) {
+    db = await open({
+      filename: './usage.sqlite',
+      driver: sqlite3.Database,
+    });
+  }
+  return db;
+}
+
 
 export async function logBookingEvent(event: ReservationEvent): Promise<void> {
   try {
-    const db = await dbPromise;
+    const db = await getDb();
 
     await db.run(
       `INSERT INTO reservation_metrics (action, calendar_id, event_start, event_end)
