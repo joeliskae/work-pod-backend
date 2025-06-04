@@ -1,5 +1,6 @@
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+import { AppDataSource } from '../data-source';
+import { ReservationMetric } from '../entities/ReservationMetrics';
+import { calendarMap } from "../config/calendarMap";
 
 export type ReservationEvent = {
   action: 'created' | 'deleted';
@@ -8,39 +9,33 @@ export type ReservationEvent = {
   end: Date;
 };
 
-import { calendarMap } from "../config/calendarMap";
-
-  export function getAliasFromCalendarId(calendarId: string): string | undefined {
-    return Object.keys(calendarMap).find(alias => calendarMap[alias] === calendarId);
+export function getAliasFromCalendarId(calendarId: string): string | undefined {
+  return Object.keys(calendarMap).find(alias => calendarMap[alias] === calendarId);
 }
 
-let db: Awaited<ReturnType<typeof open>> | null = null;
-
-async function getDb() {
-  if (!db) {
-    db = await open({
-      filename: './usage.sqlite',
-      driver: sqlite3.Database,
-    });
+// Alusta TypeORM kerran sovelluksen käynnistyessä (esim. index.ts / main.ts)
+export async function initDb() {
+  if (!AppDataSource.isInitialized) {
+    await AppDataSource.initialize();
   }
-  return db;
 }
-
 
 export async function logBookingEvent(event: ReservationEvent): Promise<void> {
   try {
-    const db = await getDb();
+    if (!AppDataSource.isInitialized) {
+      await initDb();
+    }
 
-    await db.run(
-      `INSERT INTO reservation_metrics (action, calendar_id, event_start, event_end)
-       VALUES (?, ?, ?, ?)`,
-      [
-        event.action,
-        getAliasFromCalendarId(event.calendarId),
-        event.start.toISOString(),
-        event.end.toISOString(),
-      ]
-    );
+    const repo = AppDataSource.getRepository(ReservationMetric);
+
+    const reservationMetric = repo.create({
+      action: event.action,
+      calendarId: getAliasFromCalendarId(event.calendarId),
+      eventStart: event.start.toISOString(),
+      eventEnd: event.end.toISOString(),
+    });
+
+    await repo.save(reservationMetric);
   } catch (err) {
     console.error("Tietokantaan loggaus epäonnistui:", err);
   }

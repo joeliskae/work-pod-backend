@@ -5,3 +5,4 @@ service-account.json
 src/dump.ts
 .eslintignore
 usage.sqlite
+usage.sqlite.backup

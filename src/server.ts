@@ -4,6 +4,7 @@ import v1Routes from "./routes/v1";
 import cors from "cors";
 import { requestLogger } from "./middleware/requestLogger";
 import { warmUpCache } from "./services/cacheWarmup";
+import { initDb } from "./utils/logBookingEvents";
 
 dotenv.config();
 
@@ -16,12 +17,15 @@ app.use(cors({
 }));
 
 app.use(requestLogger);
-
 app.use("/api/v1", v1Routes);
 
 warmUpCache()
   .then(() => console.log("[Cache] Initial warmup complete"))
   .catch((err) => console.error("[Cache] Warmup error", err));
+
+initDb()
+  .then(() => console.log('Tietokanta valmis'))
+  .catch(console.error);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

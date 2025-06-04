@@ -14,10 +14,7 @@ async function init() {
       action TEXT CHECK(action IN ('created', 'updated', 'deleted')) NOT NULL,
       calendar_id TEXT NOT NULL,
       event_start DATETIME NOT NULL,
-      event_end DATETIME NOT NULL,
-      duration_minutes INTEGER GENERATED ALWAYS AS (
-        CAST((JULIANDAY(event_end) - JULIANDAY(event_start)) * 24 * 60 AS INTEGER)
-      ) STORED
+      event_end DATETIME NOT NULL
     );
   `);
 
