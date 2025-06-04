@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { calendarMap } from "../../config/calendarMap";
+import { getCalendarMap } from "../../config/calendarMap";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { calendar } from "../../services/googleCalendar";
 import { setCachedEvents } from "../../cache/calendarCache";
@@ -46,6 +46,7 @@ async function checkAvailability(calendarId: string, start: string, end: string)
 
 router.post("/book", ensureAuthenticated, async (req: AuthenticatedRequest, res): Promise<void> => {
   const alias = req.body.calendarId as string;
+  const calendarMap = await getCalendarMap();
   const calendarId = calendarMap[alias];
   const { start, end } = req.body;
 

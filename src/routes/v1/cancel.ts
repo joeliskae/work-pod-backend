@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { calendarMap } from "../../config/calendarMap";
+import { getCalendarMap } from "../../config/calendarMap";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { calendar } from "../../services/googleCalendar";
 import { AuthenticatedRequest } from "../../types/auth";
@@ -19,11 +19,8 @@ router.delete("/cancel/:calendarId/:eventId", ensureAuthenticated, async (req: A
     return;
   }
 
+  const calendarMap = await getCalendarMap();
   const calendarId = calendarMap[alias];
-  if (!calendarId) {
-    res.status(400).json({ error: "Invalid calendar ID" });
-    return;
-  }
 
   try {
     // Hae tapahtuma ensin ja varmista että käyttäjä omistaa sen

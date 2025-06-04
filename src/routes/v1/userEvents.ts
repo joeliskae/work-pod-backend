@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { calendarMap } from "../../config/calendarMap";
+import { getCalendarMap } from "../../config/calendarMap";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { calendar } from "../../services/googleCalendar";
 import { getCachedEvents, setCachedEvents } from "../../cache/calendarCache";
@@ -22,6 +22,7 @@ router.get("/user-events", ensureAuthenticated, async (req: AuthenticatedRequest
   const timeMax = new Date(now.getTime() + 1000 * 60 * 60 * 24 * 30).toISOString(); // 30 päivää eteenpäin
 
   const results: UserEvent[] = [];
+  const calendarMap = await getCalendarMap();
 
   try {
     for (const alias of Object.keys(calendarMap)) {
