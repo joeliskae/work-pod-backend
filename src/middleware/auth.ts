@@ -17,6 +17,7 @@ export const ensureAuthenticated = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     // if (process.env.NODE_ENV === "development") return next();
 
+    // Tablet check  
     const isTabletClient = req.headers["x-client-type"] === "tablet";
     if (isTabletClient) {
       // Ei autentikointia, jatka suoraan
