@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { calendarMap } from "../../config/calendarMap";
+import { getCalendarMap } from "../../config/calendarMap";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { calendar } from "../../services/googleCalendar";
 import { AuthenticatedRequest } from "../../types/auth";
@@ -10,6 +10,7 @@ const router = Router();
 router.get("/booking/:calendarId/:eventId", ensureAuthenticated, async (req: AuthenticatedRequest, res): Promise<void> => {
   const alias = req.params.calendarId;
   const eventId = req.params.eventId;
+  const calendarMap = await getCalendarMap();
   const calendarId = calendarMap[alias];
   const userEmail = (req.user)?.email;
 

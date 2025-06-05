@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { parseToFullCalendarFormat } from "../../utils/calendar";
-import { calendarMap } from "../../config/calendarMap";
+import { getCalendarMap } from "../../config/calendarMap";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { calendar } from "../../services/googleCalendar";
 import { getCachedEvents, setCachedEvents } from "../../cache/calendarCache";
@@ -15,6 +15,7 @@ router.get("/events", ensureAuthenticated, spamGuard, async (req, res): Promise<
   const timeMin = (req.query.timeMin as string)?.trim();
   const timeMax = (req.query.timeMax as string)?.trim();
 
+  const calendarMap = await getCalendarMap();
   const calendarId = calendarMap[alias];
 
   if (!calendarId || !timeMin || !timeMax) {

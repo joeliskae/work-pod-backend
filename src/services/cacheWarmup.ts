@@ -1,9 +1,10 @@
 
 import { calendar } from "./googleCalendar";
-import { calendarMap } from "../config/calendarMap";
+import { getCalendarMap } from "../config/calendarMap";
 import { setCachedEvents } from "../cache/calendarCache";
 
 export async function warmUpCache() {
+  const calendarMap = await getCalendarMap();
   const now = new Date();
   const future = new Date(now);
   future.setDate(future.getDate() + 30); // Välimuistin pituus <- esim 30 päivää

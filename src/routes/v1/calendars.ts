@@ -1,7 +1,5 @@
-// calendars route
-
 import { Router } from "express";
-import { calendarMap } from "../../config/calendarMap";
+import { getCalendarMap } from "../../config/calendarMap";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { getCachedEvents } from "../../cache/calendarCache";
 import { calendar_v3 } from "googleapis";
@@ -17,7 +15,9 @@ function isEventOngoingNow(event: calendar_v3.Schema$Event): boolean {
 }
 
 // GET /api/v1/calendars
-router.get("/calendars", ensureAuthenticated, (req, res) => {
+router.get("/calendars", ensureAuthenticated, async (req, res) => {
+  const calendarMap = await getCalendarMap();
+
   const calendars = Object.entries(calendarMap).map(([alias, calendarId]) => {
     const cached = getCachedEvents(calendarId);
     if (!cached) {
