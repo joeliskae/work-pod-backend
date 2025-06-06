@@ -13,7 +13,8 @@
     "init-db": "tsx src/scripts/init-db.ts",
     "show-db": "tsx src/scripts/show-db.ts",
     "seed:calendars": "ts-node src/scripts/seedCalendars.ts",
-    "build:admin": "cd admin-panel && npm run build"
+    "build:admin": "cd admin-panel && npm run build",
+    "install:all": "concurrently \"npm install\" \"cd admin-panel && npm install\""
   },
   "keywords": [],
   "author": "",
