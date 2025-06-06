@@ -32,7 +32,7 @@ export default function App() {
   const [eventData, setEventData] = useState<EventData[]>([]);
   const [monthData, setMonthData] = useState<MonthData | null>(null);
 
-  const apiUrl = "http://localhost:3000/api/v1";
+  const apiUrl = "http://172.30.133.3:3000/api/v1";
 
   useEffect(() => {
     fetch(`${apiUrl}/analytics-hour`)
