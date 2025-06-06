@@ -6,9 +6,12 @@ import { StatusBadge } from '../ui/StatusBadge';
 
 export const CalendarManagement: React.FC = () => {
   const [calendars, setCalendars] = useState<CalendarType[]>([
-    { id: '1', name: 'Yleiset tapahtumat', color: 'blue', isActive: true },
-    { id: '2', name: 'Kokoukset', color: 'green', isActive: true },
-    { id: '3', name: 'Koulutukset', color: 'purple', isActive: false },
+    { id: '1', name: 'C238-1', color: 'blue', isActive: true },
+    { id: '2', name: 'C238-2', color: 'green', isActive: true },
+    { id: '3', name: 'C238-3', color: 'purple', isActive: true },
+    { id: '4', name: 'C203-1', color: 'green', isActive: true },
+    { id: '5', name: 'C203-2', color: 'green', isActive: true },
+    { id: '6', name: 'C238-3', color: 'green', isActive: false },
   ]);
 
   const toggleCalendar = (id: string) => {

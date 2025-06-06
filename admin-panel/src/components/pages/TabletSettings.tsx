@@ -7,13 +7,15 @@ import { StatusBadge } from '../ui/StatusBadge';
 
 export const TabletSettings: React.FC = () => {
   const [tablets] = useState<Tablet[]>([
-    { id: '1', name: 'Tablet-001', location: 'Aula', status: 'online', lastSeen: '2 min sitten' },
-    { id: '2', name: 'Tablet-002', location: 'Kokoushuone A', status: 'online', lastSeen: '5 min sitten' },
-    { id: '3', name: 'Tablet-003', location: 'Kokoushuone B', status: 'offline', lastSeen: '2 tuntia sitten' },
+    { id: '1', name: 'C238-1', location: 'C238', status: 'online', lastSeen: '2 min sitten' },
+    { id: '2', name: 'C238-2', location: 'C238', status: 'online', lastSeen: '5 min sitten' },
+    { id: '3', name: 'C238-3', location: 'C238', status: 'online', lastSeen: '2 tuntia sitten' },
+    { id: '4', name: 'C203-1', location: 'C203', status: 'online', lastSeen: '1 tuntia sitten' },
+    { id: '5', name: 'C203-2', location: 'C203', status: 'online', lastSeen: '3 tuntia sitten' },
   ]);
 
-  const onlineCount = tablets.filter(t => t.status === 'online').length;
-  const offlineCount = tablets.filter(t => t.status === 'offline').length;
+//   const onlineCount = tablets.filter(t => t.status === 'online').length;
+//  const offlineCount = tablets.filter(t => t.status === 'offline').length;
 
   return (
     <div className="space-y-6">
@@ -48,7 +50,8 @@ export const TabletSettings: React.FC = () => {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
+
+        {/* <Card>
           <h3 className="text-lg font-semibold mb-4">Yleiset asetukset</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -82,7 +85,8 @@ export const TabletSettings: React.FC = () => {
               <span className="text-sm font-medium">{tablets.length}</span>
             </div>
           </div>
-        </Card>
+        </Card> */}
+
       </div>
     </div>
   );
