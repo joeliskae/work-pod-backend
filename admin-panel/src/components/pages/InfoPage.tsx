@@ -16,15 +16,15 @@ export const InfoPage: React.FC = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Viimeisin päivitys:</span>
-              <span className="text-sm font-medium">2024-01-15</span>
+              <span className="text-sm font-medium">2025-06-06</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Tietokanta:</span>
-              <span className="text-sm font-medium">PostgreSQL 14</span>
+              <span className="text-sm font-medium">SQLite</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Palvelin:</span>
-              <span className="text-sm font-medium">Node.js 18</span>
+              <span className="text-sm font-medium">Node.js 22</span>
             </div>
           </div>
         </Card>
@@ -33,16 +33,12 @@ export const InfoPage: React.FC = () => {
           <h3 className="text-lg font-semibold mb-4">Tuki</h3>
           <div className="space-y-3">
             <p className="text-sm text-gray-600">
-              Jos tarvitset apua järjestelmän käytössä, ota yhteyttä tukitiimiimme.
+              Jos tarvitset apua järjestelmän käytössä, olen pahoillani, tukitiimiä ei ole.
             </p>
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-medium">Sähköposti:</span>
-                <span className="text-sm text-blue-600">tuki@example.com</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium">Puhelin:</span>
-                <span className="text-sm">+358 123 456 789</span>
+                <span className="text-sm text-blue-600">eiole@lab.fi</span>
               </div>
             </div>
           </div>
