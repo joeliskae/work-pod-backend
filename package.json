@@ -12,7 +12,8 @@
     "start": "node dist/server.js",
     "init-db": "tsx src/scripts/init-db.ts",
     "show-db": "tsx src/scripts/show-db.ts",
-    "seed:calendars": "ts-node src/scripts/seedCalendars.ts"
+    "seed:calendars": "ts-node src/scripts/seedCalendars.ts",
+    "build:admin": "cd admin-panel && npm run build"
   },
   "keywords": [],
   "author": "",
