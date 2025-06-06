@@ -5,7 +5,7 @@ import cors from "cors";
 import { requestLogger } from "./middleware/requestLogger";
 import { warmUpCache } from "./services/cacheWarmup";
 import { initializeDataSource } from "./data-source";
-import path from "path";
+// import path from "path";
 
 dotenv.config();
 
@@ -13,13 +13,13 @@ const app = express();
 app.use(express.json());
 
 // Tarjoillaan admin-panelin staattinen sisältö
-const adminPath = path.join(__dirname, '..', 'admin-panel', 'dist');
-app.use('/admin', express.static(adminPath));
+// const adminPath = path.join(__dirname, '..', 'admin-panel', 'dist');
+// app.use('/admin', express.static(adminPath));
 
-// Osoitetaan kaikki /admin-reitit index.html:ään (React-Router yhteensopivuus)
-app.get('/admin/*', (req, res) => {
-  res.sendFile(path.join(adminPath, 'index.html'));
-});
+// // Osoitetaan kaikki /admin-reitit index.html:ään (React-Router yhteensopivuus)
+// app.get('/admin/*', (req, res) => {
+//   res.sendFile(path.join(adminPath, 'index.html'));
+// });
 
 async function startServer() {
   try {
