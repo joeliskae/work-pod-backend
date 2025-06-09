@@ -2,27 +2,55 @@ import { Router } from "express";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { spamGuard } from "../../middleware/spamGuard";
 import sqlite3 from "sqlite3";
+import { DateTime } from "luxon";
 
 const router = Router();
 const db = new sqlite3.Database("./usage.sqlite");
+
+
+interface Row {
+  event_start: string; // ISO8601-formatted UTC string
+}
+
+interface HourCount {
+  hour: string; // e.g. "09"
+  count: number;
+}
+
+
 // TODO: Muista laittaa autentikaatio päälle!!!
 // GET /api/v1/analytics-hour
+
 router.get("/analytics-hour", spamGuard, (req, res) => {
   const query = `
-    SELECT strftime('%H', event_start) AS hour, COUNT(*) AS count
+    SELECT event_start
     FROM reservation_metrics
-    WHERE action = 'created'
-    GROUP BY hour
-    ORDER BY hour;
+    WHERE action = 'created';
   `;
 
-  db.all(query, [], (err, rows) => {
+  db.all(query, [], (err, rows: Row[]) => {
     if (err) {
       console.error("Database error:", err.message);
-      return res.status(500).json({ error: "Database error" });
+      res.status(500).json({ error: "Database error" });
+      return;
     }
 
-    res.json(rows);
+    // Lasketaan tuntijakauma paikallisen ajan mukaan
+    const hourCounts: Record<string, number> = {};
+
+    for (const row of rows) {
+      const localHour = DateTime.fromISO(row.event_start, { zone: "utc" })
+        .setZone("Europe/Helsinki")
+        .toFormat("HH");
+
+      hourCounts[localHour] = (hourCounts[localHour] || 0) + 1;
+    }
+
+    const result: HourCount[] = Object.entries(hourCounts)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([hour, count]) => ({ hour, count }));
+
+    res.json(result);
   });
 });
 
