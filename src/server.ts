@@ -27,9 +27,8 @@ const allowedOrigins = [
   "http://localhost:5173", // esim. frontend dev
   "http://localhost:3000", // esim. admin-panel
   "http://172.30.133.3:5173", // esim. devi servu
-  "http://172.30.133.3:3000", // devi myös
-  "https://1d0e-193-166-177-58.ngrok-free.app/", //Oskarin devisäädöt
-  "172.30.132.212"
+  "http://172.30.133.3:3000", // devi myös, //Oskarin devisäädöt
+  "http://172.30.132.212:80"
 ];
 
 async function startServer() {
