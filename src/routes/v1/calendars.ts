@@ -15,7 +15,7 @@ function isEventOngoingNow(event: calendar_v3.Schema$Event): boolean {
 }
 
 // GET /api/v1/calendars
-router.get("/calendars", ensureAuthenticated, async (req, res) => {
+router.get("/calendars", async (req, res) => {
   const calendarMap = await getCalendarMap();
 
   const calendars = Object.entries(calendarMap).map(([alias, calendarId]) => {

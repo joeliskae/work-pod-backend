@@ -1,30 +1,84 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { type Calendar as CalendarType } from '../../types';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { StatusBadge } from '../ui/StatusBadge';
 
-export const CalendarManagement: React.FC = () => {
-  const [calendars, setCalendars] = useState<CalendarType[]>([
-    { id: '1', name: 'C238-1', color: 'blue', isActive: true },
-    { id: '2', name: 'C238-2', color: 'green', isActive: true },
-    { id: '3', name: 'C238-3', color: 'purple', isActive: true },
-    { id: '4', name: 'C203-1', color: 'green', isActive: true },
-    { id: '5', name: 'C203-2', color: 'green', isActive: true },
-    { id: '6', name: 'C238-3', color: 'green', isActive: false },
-  ]);
+const API_URL = import.meta.env.VITE_API_URL;
 
-  const toggleCalendar = (id: string) => {
-    setCalendars(calendars.map(cal => 
-      cal.id === id ? { ...cal, isActive: !cal.isActive } : cal
-    ));
+interface BackendCalendar {
+  alias: string;
+  status: string; // tällä hetkellä unused
+}
+
+export const CalendarManagement: React.FC = () => {
+  const [calendars, setCalendars] = useState<CalendarType[]>([]);
+
+  // Haetaan kalenterit backendistä
+  const fetchCalendars = async () => {
+    try {
+      const res = await fetch(`${API_URL}/calendars`);
+      if (!res.ok) throw new Error('Kalenterien hakeminen epäonnistui');
+      const data: { calendars: BackendCalendar[] } = await res.json();
+
+      // Muutetaan backendin data omaan muotoon ja laitetaan isActive true
+      const mapped = data.calendars.map(cal => ({
+        id: cal.alias,
+        name: cal.alias,
+        color: 'green', // oletusväri, halutessa voit laajentaa
+        isActive: true,
+      }));
+
+      setCalendars(mapped);
+    } catch (err) {
+      alert((err as Error).message);
+    }
+  };
+
+  useEffect(() => {
+    fetchCalendars();
+  }, []);
+
+  const createCalendar = async () => {
+    const alias = prompt('Anna kalenterin alias (esim. C203-3):');
+    if (!alias) return;
+
+    try {
+      const response = await fetch(`${API_URL}/createCalendar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alias }),
+      });
+
+      if (!response.ok) throw new Error('Kalenterin luonti epäonnistui');
+
+      setCalendars(prev => [...prev, { id: alias, name: alias, color: 'green', isActive: true }]);
+    } catch (err) {
+      alert((err as Error).message);
+    }
+  };
+
+  const deleteCalendarByAlias = async (alias: string) => {
+    if (!confirm(`Haluatko varmasti poistaa kalenterin ${alias}?`)) return;
+
+    try {
+      const response = await fetch(`${API_URL}/deleteCalendar/${alias}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Kalenterin poisto epäonnistui');
+
+      setCalendars(prev => prev.filter(cal => cal.name !== alias));
+    } catch (err) {
+      alert((err as Error).message);
+    }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Hallitse kalentereita</h1>
-        <Button>Lisää kalenteri</Button>
+        <Button onClick={createCalendar}>Lisää kalenteri</Button>
       </div>
 
       <Card>
@@ -42,15 +96,19 @@ export const CalendarManagement: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <Button 
+                <Button
                   variant={calendar.isActive ? 'success' : 'secondary'}
                   size="sm"
-                  onClick={() => toggleCalendar(calendar.id)}
+                  onClick={() => {}}
                 >
                   {calendar.isActive ? 'Aktiivinen' : 'Ei aktiivinen'}
                 </Button>
-                <Button variant="secondary" size="sm">Muokkaa</Button>
-                <Button variant="danger" size="sm">Poista</Button>
+                <Button variant="secondary" size="sm" onClick={() => { /* muokkaus ei vielä */ }}>
+                  Muokkaa
+                </Button>
+                <Button variant="danger" size="sm" onClick={() => deleteCalendarByAlias(calendar.name)}>
+                  Poista
+                </Button>
               </div>
             </div>
           ))}
