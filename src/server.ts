@@ -26,7 +26,8 @@ app.get(/^\/admin(\/.*)?$/, (req, res) => {
 const allowedOrigins = [
   "http://localhost:5173", // esim. frontend dev
   "http://localhost:3000", // esim. admin-panel
-  "http://172.30.132.212:80" // uus ip
+  "http://172.30.132.212:80", // uus ip
+  "https://f9f2-193-166-177-58.ngrok-free.app"
 ];
 
 async function startServer() {
