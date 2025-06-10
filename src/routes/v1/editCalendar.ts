@@ -1,4 +1,3 @@
-// Esimerkki Expressissä
 import { Router } from 'express';
 import { AppDataSource } from '../../data-source';
 import { Calendar } from '../../entities/Calendar';
@@ -6,7 +5,7 @@ import { spamGuard } from '../../middleware/spamGuard';
 
 const router = Router();
 
-router.put('/editCalendar/:id', spamGuard, async (req, res): Promise<void> => {
+router.post('/editCalendar/:id', spamGuard, async (req, res): Promise<void> => {
   const { id } = req.params;
   const { alias } = req.body;
   if (!alias || typeof alias !== 'string') {

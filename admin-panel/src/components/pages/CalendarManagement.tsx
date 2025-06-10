@@ -5,19 +5,22 @@ import { Button } from '../ui/Button';
 import { StatusBadge } from '../ui/StatusBadge';
 import { CreateCalendarModal } from '../ui/CreateCalendarModal';
 import { EditCalendarModal } from '../ui/EditCalendarModal';
+import { ConfirmModal } from '../ui/ConfirmModal';
 
 export const CalendarManagement: React.FC = () => {
   const [calendars, setCalendars] = useState<CalendarType[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingCalendar, setEditingCalendar] = useState<CalendarType | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [calendarToDelete, setCalendarToDelete] = useState<CalendarType | null>(null);
 
   useEffect(() => {
     fetchCalendars();
   }, []);
 
   const fetchCalendars = async () => {
-    const res = await fetch('/api/v1/calendars');
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/calendars`);
     const data = await res.json();
     setCalendars(
       data.calendars.map((c: { alias: string }) => ({
@@ -31,7 +34,7 @@ export const CalendarManagement: React.FC = () => {
 
   const handleCreateCalendar = async (alias: string) => {
     try {
-      const res = await fetch('/api/v1/createCalendar', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/createCalendar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ alias }),
@@ -47,10 +50,15 @@ export const CalendarManagement: React.FC = () => {
     }
   };
 
-  const handleDeleteCalendar = async (alias: string) => {
-    if (!window.confirm(`Haluatko varmasti poistaa kalenterin ${alias}?`)) return;
+  const confirmDelete = (calendar: CalendarType) => {
+    setCalendarToDelete(calendar);
+    setConfirmDeleteOpen(true);
+  };
+
+  const handleDeleteCalendar = async () => {
+    if (!calendarToDelete) return;
     try {
-      const res = await fetch(`/api/v1/deleteCalendar/${alias}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/deleteCalendar/${calendarToDelete.name}`, {
         method: 'DELETE',
       });
       if (!res.ok) {
@@ -58,6 +66,8 @@ export const CalendarManagement: React.FC = () => {
         throw new Error(err.error || 'Virhe kalenterin poistossa');
       }
       await fetchCalendars();
+      setConfirmDeleteOpen(false);
+      setCalendarToDelete(null);
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Virhe kalenterin poistossa');
     }
@@ -70,8 +80,8 @@ export const CalendarManagement: React.FC = () => {
 
   const handleSaveEdit = async (id: string, newAlias: string) => {
     try {
-      const res = await fetch(`/editCalendar/${id}`, {
-        method: 'PUT',
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/editCalendar/${id}`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ alias: newAlias }),
       });
@@ -86,14 +96,14 @@ export const CalendarManagement: React.FC = () => {
       alert(error instanceof Error ? error.message : 'Virhe kalenterin päivittämisessä');
     }
   };
-  
-    const toggleCalendar = (id: string) => {
-      setCalendars(
-        calendars.map((cal) =>
-          cal.id === id ? { ...cal, isActive: !cal.isActive } : cal
-        )
-      );
-    };
+
+  const toggleCalendar = (id: string) => {
+    setCalendars(
+      calendars.map((cal) =>
+        cal.id === id ? { ...cal, isActive: !cal.isActive } : cal
+      )
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -127,7 +137,7 @@ export const CalendarManagement: React.FC = () => {
                 <Button variant="secondary" size="sm" onClick={() => handleOpenEditModal(calendar)}>
                   Muokkaa
                 </Button>
-                <Button variant="danger" size="sm" onClick={() => handleDeleteCalendar(calendar.name)}>
+                <Button variant="danger" size="sm" onClick={() => confirmDelete(calendar)}>
                   Poista
                 </Button>
               </div>
@@ -145,7 +155,18 @@ export const CalendarManagement: React.FC = () => {
           onSave={handleSaveEdit}
         />
       )}
+      {calendarToDelete && (
+        <ConfirmModal
+          isOpen={confirmDeleteOpen}
+          title="Poista kalenteri"
+          message={`Haluatko varmasti poistaa kalenterin ${calendarToDelete.name}?`}
+          onCancel={() => {
+            setConfirmDeleteOpen(false);
+            setCalendarToDelete(null);
+          }}
+          onConfirm={handleDeleteCalendar}
+        />
+      )}
     </div>
   );
 };
-

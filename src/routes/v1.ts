@@ -9,7 +9,7 @@ import booking from "./v1/booking";
 import analytics from "./v1/analytics";
 import createCalendar from "./v1/createCalendar";
 import deleteCalendar from "./v1/deleteCalendar";
-import editCalendar from "./v1/editCalendar"
+import editCalendar from "./v1/editCalendar";
 // import busy from "./v1/busy";
 
 // TODO: poista cache endpoint ennen tuotantoa!!!
