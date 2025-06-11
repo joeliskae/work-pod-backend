@@ -117,7 +117,7 @@ export const TabletSettings: React.FC = () => {
     if (!tabletToDelete) return;
 
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/tablets/${tabletToDelete}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/tablets/delete/${tabletToDelete}`, {
         method: "DELETE",
       });
       setTablets((prev) =>

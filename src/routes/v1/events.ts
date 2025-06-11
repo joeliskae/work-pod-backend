@@ -6,6 +6,8 @@ import { calendar } from "../../services/googleCalendar";
 import { getCachedEvents, setCachedEvents } from "../../cache/calendarCache";
 import { calendar_v3 } from "googleapis";
 import { spamGuard } from "../../middleware/spamGuard";
+import { AppDataSource } from "../../data-source";
+import { Tablet } from "../../entities/TabletEntity";
 
 const router = Router();
 
@@ -67,6 +69,71 @@ router.get("/events", ensureAuthenticated, spamGuard, async (req, res): Promise<
         res.status(500).json({ error: "Tuntematon virhe" });
       }
     }
+});
+
+// Tablet endpoint /events/tablet
+router.get("/events/tablet", spamGuard, async (req, res): Promise<void> => {
+  const tabletRepository = AppDataSource.getRepository(Tablet);
+  const calendarMap = await getCalendarMap();
+
+  try {
+    const clientIp = req.ip;
+
+    // Haetaan tabletti IP:n perusteella
+    const userIp = clientIp?.replace(/^::ffff:/, "");
+    const tablet = await tabletRepository.findOne({ where: { ipAddress: userIp } });
+
+    if (!tablet || !tablet.calendarId) {
+      res.status(404).json({ error: "Tablettia ei löytynyt IP-osoitteella: ", userIp });
+      return; 
+    }
+
+    const calendarId = calendarMap[tablet.calendarId];
+
+    if (!calendarId) {
+      res.status(404).json({ error: "Kalenteria ei löytynyt tabletin calendarId:llä." });
+      return; 
+    }
+
+    const now = new Date();
+    const defaultTimeMin = now.toISOString();
+    const defaultTimeMax = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
+
+    const timeMin = (req.query.timeMin as string)?.trim() || defaultTimeMin;
+    const timeMax = (req.query.timeMax as string)?.trim() || defaultTimeMax;
+
+    let events: calendar_v3.Schema$Event[] = [];
+
+    // Välimuisti
+    const cached = getCachedEvents(calendarId);
+    if (cached) {
+      const minDate = new Date(timeMin);
+      const maxDate = new Date(timeMax);
+
+      events = cached.events.filter((event) => {
+        const eventStart = new Date(event.start?.dateTime || event.start?.date || "");
+        const eventEnd = new Date(event.end?.dateTime || event.end?.date || "");
+        return eventEnd > minDate && eventStart < maxDate;
+      });
+    } else {
+      const response = await calendar.events.list({
+        calendarId,
+        timeMin,
+        timeMax,
+        singleEvents: true,
+        orderBy: "startTime",
+      });
+
+      events = response.data.items || [];
+      await setCachedEvents(calendarId, events);
+    }
+
+    const parsed = parseToFullCalendarFormat(events);
+    res.json(parsed);
+  } catch (error) {
+    console.error(`[${new Date().toISOString()}] Virhe tabletin tapahtumien haussa: `, error);
+    res.status(500).json({ error: "Virhe tapahtumia haettaessa." });
+  }
 });
 
 export default router;
