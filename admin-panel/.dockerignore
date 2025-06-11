@@ -1,0 +1,23 @@
+# Node dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+.pnpm-store
+
+# Git
+.git
+.gitignore
+
+# Logs and OS files
+.DS_Store
+*.log
+
+# Build output
+dist
+build
+
+# Env files (passed explicitly)
+.env
+.env.local
+.env.development
+.env.production
