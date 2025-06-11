@@ -27,11 +27,11 @@ export const CalendarManagement: React.FC = () => {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/calendars/admin`);
     const data = await res.json();
     setCalendars(
-      data.calendars.map((c: { alias: string }) => ({
+      data.calendars.map((c: { alias: string, isActive: boolean }) => ({
         id: c.alias,
         name: c.alias,
         color: "blue",
-        isActive: true,
+        isActive: c.isActive,
       }))
     );
   };
