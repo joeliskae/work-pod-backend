@@ -15,9 +15,12 @@ export interface Tablet {
   id: string;
   name: string;
   location: string;
-  status: 'online' | 'offline' | 'maintenance';
-  lastSeen: string;
+  calendarId: string; 
+  ipAddress: string;  
+  // status: 'online' | 'offline' | 'unknown';
+  // lastSeen: string;
 }
+
 
 export interface StatCard {
   title: string;

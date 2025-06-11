@@ -176,11 +176,11 @@ export const CalendarManagement: React.FC = () => {
                   {calendar.isActive ? "Aktiivinen" : "Ei aktiivinen"}
                 </Button>
                 <Button
-                  variant="secondary"
+                  variant="settings"
                   size="sm"
                   onClick={() => handleOpenEditModal(calendar)}
                 >
-                  Muokkaa
+                  Asetukset
                 </Button>
                 <Button
                   variant="danger"

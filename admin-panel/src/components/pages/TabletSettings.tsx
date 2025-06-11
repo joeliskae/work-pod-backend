@@ -1,93 +1,276 @@
-import React, { useState } from 'react';
-import { Tablet as TabletIcon } from 'lucide-react';
-import type { Tablet } from '../../types';
-import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
-import { StatusBadge } from '../ui/StatusBadge';
+import React, { useEffect, useState } from "react";
+import { Tablet as TabletIcon } from "lucide-react";
+import type { Tablet } from "../../types";
+import { Card } from "../ui/Card";
+import { Button } from "../ui/Button";
+import { Dialog } from "../ui/Dialog";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import { ConfirmModal } from "../ui/ConfirmModal";
 
 export const TabletSettings: React.FC = () => {
-  const [tablets] = useState<Tablet[]>([
-    { id: '1', name: 'C238-1', location: 'C238', status: 'online', lastSeen: '2 min sitten' },
-    { id: '2', name: 'C238-2', location: 'C238', status: 'online', lastSeen: '5 min sitten' },
-    { id: '3', name: 'C238-3', location: 'C238', status: 'online', lastSeen: '2 tuntia sitten' },
-    { id: '4', name: 'C203-1', location: 'C203', status: 'online', lastSeen: '1 tuntia sitten' },
-    { id: '5', name: 'C203-2', location: 'C203', status: 'online', lastSeen: '3 tuntia sitten' },
-  ]);
+  const [tablets, setTablets] = useState<Tablet[]>([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-//   const onlineCount = tablets.filter(t => t.status === 'online').length;
-//  const offlineCount = tablets.filter(t => t.status === 'offline').length;
+  const [tabletToDelete, setTabletToDelete] = useState<string | null>(null);
+  const [tabletToEdit, setTabletToEdit] = useState<Tablet | null>(null);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    location: "",
+    calendarId: "",
+    ipAddress: "",
+  });
+
+  // --- Datahaku ---
+  useEffect(() => {
+    const fetchTablets = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/tablets/get`
+        );
+        const data = await response.json();
+        setTablets(data);
+      } catch (error) {
+        console.error("Virhe haettaessa tabletteja:", error);
+      }
+    };
+
+    fetchTablets();
+  }, []);
+
+  // --- Lomakkeen käsittely ---
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const resetForm = () => {
+    setFormData({ name: "", location: "", calendarId: "", ipAddress: "" });
+  };
+
+  const handleAddTablet = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/tablets/add`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
+      const newTablet = await response.json();
+      setTablets((prev) => [...prev, newTablet]);
+      setShowAddModal(false);
+      resetForm();
+    } catch (error) {
+      console.error("Virhe tallennettaessa tablettia:", error);
+    }
+  };
+
+  const openEditModal = (tablet: Tablet) => {
+    setTabletToEdit(tablet);
+    setFormData({
+      name: tablet.name,
+      location: tablet.location,
+      calendarId: tablet.calendarId || "",
+      ipAddress: tablet.ipAddress || "",
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateTablet = async () => {
+    if (!tabletToEdit) return;
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/tablets/edit/${tabletToEdit.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
+      const updatedTablet = await response.json();
+
+      setTablets((prev) =>
+        prev.map((t) => (t.id === updatedTablet.id ? updatedTablet : t))
+      );
+      setShowEditModal(false);
+      setTabletToEdit(null);
+      resetForm();
+    } catch (error) {
+      console.error("Virhe päivitettäessä tablettia:", error);
+    }
+  };
+
+  const confirmDeleteTablet = (id: string) => {
+    setTabletToDelete(id);
+    setShowConfirmModal(true);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (!tabletToDelete) return;
+
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/tablets/${tabletToDelete}`, {
+        method: "DELETE",
+      });
+      setTablets((prev) =>
+        prev.filter((tablet) => tablet.id !== tabletToDelete)
+      );
+    } catch (error) {
+      console.error("Virhe poistettaessa tablettia:", error);
+    } finally {
+      setShowConfirmModal(false);
+      setTabletToDelete(null);
+    }
+  };
+
+  // --- Lomake UI (käytetään molemmissa modaleissa) ---
+  const renderTabletForm = () => (
+    <div className="space-y-2">
+      <div className="space-y-2">
+        <Label htmlFor="name">Nimi</Label>
+        <Input
+          id="name"
+          name="name"
+          placeholder="Esim. C238-1"
+          value={formData.name}
+          onChange={handleInputChange}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="location">Lokaatio</Label>
+        <Input
+          id="location"
+          name="location"
+          placeholder="Tila esim. C238"
+          value={formData.location}
+          onChange={handleInputChange}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="calendarId">Kalenterin ID</Label>
+        <Input
+          id="calendarId"
+          name="calendarId"
+          placeholder="TÄRKEÄ! Kalenterin Id, esim. C238-1"
+          value={formData.calendarId}
+          onChange={handleInputChange}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="ipAddress">IP-osoite</Label>
+        <Input
+          id="ipAddress"
+          name="ipAddress"
+          placeholder="Esim. 172.0.0.1"
+          value={formData.ipAddress}
+          onChange={handleInputChange}
+        />
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Tablettien asetukset</h1>
-        <Button>Lisää tabletti</Button>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Tablettien asetukset
+        </h1>
+        <Button onClick={() => setShowAddModal(true)}>Lisää tabletti</Button>
       </div>
 
       <Card>
         <h3 className="text-lg font-semibold mb-4">Rekisteröidyt tabletit</h3>
         <div className="space-y-4">
           {tablets.map((tablet) => (
-            <div key={tablet.id} className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="flex items-center space-x-4">
-                <TabletIcon className="w-8 h-8 text-gray-600" />
-                <div>
-                  <h4 className="font-medium">{tablet.name}</h4>
-                  <p className="text-sm text-gray-500">{tablet.location}</p>
-                  <p className="text-xs text-gray-400">Viimeksi nähty: {tablet.lastSeen}</p>
+            <div
+              key={tablet.id}
+              className="flex items-center justify-between p-4 border rounded-lg"
+            >
+              <div className="flex items-start space-x-4">
+                <TabletIcon className="w-8 h-8 text-gray-600 mt-1" />
+                <div className="space-y-1">
+                  <h4 className="font-medium text-lg">{tablet.name}</h4>
+                  <p className="text-sm text-gray-500">
+                    Lokaatio: {tablet.location}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Kalenteri Id: {tablet.calendarId || "-"}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    IP: {tablet.ipAddress || "-"}
+                  </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <StatusBadge status={tablet.status}>
-                  {tablet.status}
-                </StatusBadge>
-                <Button variant="secondary" size="sm">Asetukset</Button>
-                <Button variant="secondary" size="sm">Uudelleenkäynnistä</Button>
+
+              <div className="flex flex-col items-end space-y-2">
+                <div className="flex space-x-2">
+                  <Button
+                    variant="settings"
+                    size="sm"
+                    onClick={() => openEditModal(tablet)}
+                  >
+                    Asetukset
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => confirmDeleteTablet(tablet.id)}
+                  >
+                    Poista
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onConfirm={handleDeleteConfirmed}
+        onCancel={() => {
+          setShowConfirmModal(false);
+          setTabletToDelete(null);
+        }}
+        title="Poista tabletti"
+        message="Haluatko varmasti poistaa tämän tabletin?"
+        confirmText="Poista"
+        cancelText="Peruuta"
+      />
 
-        {/* <Card>
-          <h3 className="text-lg font-semibold mb-4">Yleiset asetukset</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Automaattinen päivitys</span>
-              <button className="w-12 h-6 bg-blue-600 rounded-full relative">
-                <div className="w-4 h-4 bg-white rounded-full absolute right-1 top-1"></div>
-              </button>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Etätuki</span>
-              <button className="w-12 h-6 bg-gray-300 rounded-full relative">
-                <div className="w-4 h-4 bg-white rounded-full absolute left-1 top-1"></div>
-              </button>
-            </div>
+      <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
+        <div className="p-6 space-y-4">
+          <h2 className="text-xl font-semibold">Lisää uusi tabletti</h2>
+          {renderTabletForm()}
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button variant="secondary" onClick={() => setShowAddModal(false)}>
+              Peruuta
+            </Button>
+            <Button onClick={handleAddTablet}>Tallenna</Button>
           </div>
-        </Card>
+        </div>
+      </Dialog>
 
-        <Card>
-          <h3 className="text-lg font-semibold mb-4">Seuranta</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-sm">Online:</span>
-              <span className="text-sm font-medium text-green-600">{onlineCount}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm">Offline:</span>
-              <span className="text-sm font-medium text-red-600">{offlineCount}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm">Yhteensä:</span>
-              <span className="text-sm font-medium">{tablets.length}</span>
-            </div>
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <div className="p-6 space-y-4">
+          <h2 className="text-xl font-semibold">Muokkaa tablettia</h2>
+          {renderTabletForm()}
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+              Peruuta
+            </Button>
+            <Button onClick={handleUpdateTablet}>Tallenna muutokset</Button>
           </div>
-        </Card> */}
-
-      </div>
+        </div>
+      </Dialog>
     </div>
   );
 };
