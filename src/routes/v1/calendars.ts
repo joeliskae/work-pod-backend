@@ -19,26 +19,34 @@ function isEventOngoingNow(event: calendar_v3.Schema$Event): boolean {
 //TODO: autentikaatio....
 // GET /api/v1/calendars
 router.get("/calendars", async (req, res) => {
-  const calendarMap = await getCalendarMap();
-
-  const calendars = Object.entries(calendarMap).map(([alias, calendarId]) => {
-    const cached = getCachedEvents(calendarId);
-    if (!cached) {
-      return { alias, status: "unknown" };
-    }
-
-    const isBusy = cached.events.some((event) => {
-      return event.status !== "cancelled" && isEventOngoingNow(event);
+  try {
+    const calendarsInDb = await AppDataSource.getRepository(Calendar).find({
+      where: { isActive: true },
     });
 
-    return {
-      alias,
-      status: isBusy ? "busy" : "free",
-    };
-  });
+    const calendars = calendarsInDb.map((cal) => {
+      const cached = getCachedEvents(cal.calendarId);
+      if (!cached) {
+        return { alias: cal.alias, status: "unknown" };
+      }
 
-  res.json({ calendars });
+      const isBusy = cached.events.some((event) => {
+        return event.status !== "cancelled" && isEventOngoingNow(event);
+      });
+
+      return {
+        alias: cal.alias,
+        status: isBusy ? "busy" : "free",
+      };
+    });
+
+    res.json({ calendars });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Virhe kalentereiden hakemisessa" });
+  }
 });
+
 
 router.get("/calendars/admin", async (req, res) => {
   const repo = AppDataSource.getRepository(Calendar);
