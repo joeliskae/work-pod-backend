@@ -3,6 +3,8 @@ import { getCalendarMap } from "../../config/calendarMap";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { getCachedEvents } from "../../cache/calendarCache";
 import { calendar_v3 } from "googleapis";
+import { Calendar } from "../../entities/Calendar";
+import { AppDataSource } from "../../data-source";
 
 const router = Router();
 
@@ -14,6 +16,7 @@ function isEventOngoingNow(event: calendar_v3.Schema$Event): boolean {
   return start <= now && now < end;
 }
 
+//TODO: autentikaatio....
 // GET /api/v1/calendars
 router.get("/calendars", async (req, res) => {
   const calendarMap = await getCalendarMap();
@@ -37,4 +40,14 @@ router.get("/calendars", async (req, res) => {
   res.json({ calendars });
 });
 
+router.get("/calendars/admin", async (req, res) => {
+  const repo = AppDataSource.getRepository(Calendar);
+  const calendars = await repo.find();
+  res.json({
+    calendars: calendars.map((cal) => ({
+      alias: cal.alias,
+      isActive: cal.isActive,
+    })),
+  });
+});
 export default router;

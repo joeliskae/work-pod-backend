@@ -10,6 +10,7 @@ import analytics from "./v1/analytics";
 import createCalendar from "./v1/createCalendar";
 import deleteCalendar from "./v1/deleteCalendar";
 import editCalendar from "./v1/editCalendar";
+import toggleACtive from "./v1/toggleActive"
 // import busy from "./v1/busy";
 
 // TODO: poista cache endpoint ennen tuotantoa!!!
@@ -29,5 +30,6 @@ router.use(analytics);
 router.use(createCalendar);
 router.use(deleteCalendar);
 router.use(editCalendar);
+router.use(toggleACtive);
 
 export default router;

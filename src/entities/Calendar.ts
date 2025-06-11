@@ -1,6 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-@Entity({ name: 'calendars' })
+@Entity({ name: "calendars" })
 export class Calendar {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -10,4 +10,7 @@ export class Calendar {
 
   @Column()
   calendarId!: string;
+
+  @Column({ default: false })
+  isActive!: boolean;
 }

@@ -1,0 +1,26 @@
+import { Router } from 'express';
+import { AppDataSource } from '../../data-source';
+import { Calendar } from '../../entities/Calendar';
+import { spamGuard } from '../../middleware/spamGuard';
+
+const router = Router();
+
+//TODO: autentikaatio :DDD
+router.patch('/toggleActive/:alias', spamGuard, async (req, res): Promise<void> => {
+  const { alias } = req.params;
+  const { isActive } = req.body;
+
+  const repo = AppDataSource.getRepository(Calendar);
+  const calendar = await repo.findOneBy({ alias });
+  if (!calendar) {
+    res.status(404).json({ error: 'Calendar not found' });
+    return; 
+} 
+
+  calendar.isActive = isActive;
+  await repo.save(calendar);
+
+  res.json({ message: `Calendar '${alias}' active status set to ${isActive}` });
+});
+
+export default router;

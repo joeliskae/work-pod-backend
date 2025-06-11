@@ -1,32 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { type Calendar as CalendarType } from '../../types';
-import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
-import { StatusBadge } from '../ui/StatusBadge';
-import { CreateCalendarModal } from '../ui/CreateCalendarModal';
-import { EditCalendarModal } from '../ui/EditCalendarModal';
-import { ConfirmModal } from '../ui/ConfirmModal';
+import React, { useState, useEffect } from "react";
+import { type Calendar as CalendarType } from "../../types";
+import { Card } from "../ui/Card";
+import { Button } from "../ui/Button";
+import { StatusBadge } from "../ui/StatusBadge";
+import { CreateCalendarModal } from "../ui/CreateCalendarModal";
+import { EditCalendarModal } from "../ui/EditCalendarModal";
+import { ConfirmModal } from "../ui/ConfirmModal";
 
 export const CalendarManagement: React.FC = () => {
   const [calendars, setCalendars] = useState<CalendarType[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingCalendar, setEditingCalendar] = useState<CalendarType | null>(null);
+  const [editingCalendar, setEditingCalendar] = useState<CalendarType | null>(
+    null
+  );
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [calendarToDelete, setCalendarToDelete] = useState<CalendarType | null>(null);
+  const [calendarToDelete, setCalendarToDelete] = useState<CalendarType | null>(
+    null
+  );
 
   useEffect(() => {
     fetchCalendars();
   }, []);
 
   const fetchCalendars = async () => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/calendars`);
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/calendars/admin`);
     const data = await res.json();
     setCalendars(
       data.calendars.map((c: { alias: string }) => ({
         id: c.alias,
         name: c.alias,
-        color: 'blue',
+        color: "blue",
         isActive: true,
       }))
     );
@@ -34,19 +38,24 @@ export const CalendarManagement: React.FC = () => {
 
   const handleCreateCalendar = async (alias: string) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/createCalendar`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ alias }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/createCalendar`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ alias }),
+        }
+      );
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Virhe kalenterin luonnissa');
+        throw new Error(err.error || "Virhe kalenterin luonnissa");
       }
       await fetchCalendars();
       setModalOpen(false);
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Virhe kalenterin luonnissa');
+      alert(
+        error instanceof Error ? error.message : "Virhe kalenterin luonnissa"
+      );
     }
   };
 
@@ -58,18 +67,25 @@ export const CalendarManagement: React.FC = () => {
   const handleDeleteCalendar = async () => {
     if (!calendarToDelete) return;
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/deleteCalendar/${calendarToDelete.name}`, {
-        method: 'DELETE',
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/deleteCalendar/${
+          calendarToDelete.name
+        }`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Virhe kalenterin poistossa');
+        throw new Error(err.error || "Virhe kalenterin poistossa");
       }
       await fetchCalendars();
       setConfirmDeleteOpen(false);
       setCalendarToDelete(null);
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Virhe kalenterin poistossa');
+      alert(
+        error instanceof Error ? error.message : "Virhe kalenterin poistossa"
+      );
     }
   };
 
@@ -80,35 +96,52 @@ export const CalendarManagement: React.FC = () => {
 
   const handleSaveEdit = async (id: string, newAlias: string) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/editCalendar/${id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ alias: newAlias }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/editCalendar/${id}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ alias: newAlias }),
+        }
+      );
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Virhe kalenterin päivittämisessä');
+        throw new Error(err.error || "Virhe kalenterin päivittämisessä");
       }
       await fetchCalendars();
       setEditModalOpen(false);
       setEditingCalendar(null);
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Virhe kalenterin päivittämisessä');
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Virhe kalenterin päivittämisessä"
+      );
     }
   };
 
-  const toggleCalendar = (id: string) => {
-    setCalendars(
-      calendars.map((cal) =>
-        cal.id === id ? { ...cal, isActive: !cal.isActive } : cal
-      )
-    );
+  const toggleCalendar = async (calendar: CalendarType) => {
+    try {
+      await fetch(
+        `${import.meta.env.VITE_API_URL}/toggleActive/${calendar.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isActive: !calendar.isActive }),
+        }
+      );
+      await fetchCalendars(); // Päivitä lista uudestaan
+    } catch (err) {
+      alert("Virhe kalenterin päivittämisessä");
+    }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Hallitse kalentereita</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Hallitse kalentereita
+        </h1>
         <Button onClick={() => setModalOpen(true)}>Lisää kalenteri</Button>
       </div>
 
@@ -116,28 +149,44 @@ export const CalendarManagement: React.FC = () => {
         <h3 className="text-lg font-semibold mb-4">Kalenterit</h3>
         <div className="space-y-4">
           {calendars.map((calendar) => (
-            <div key={calendar.id} className="flex items-center justify-between p-4 border rounded-lg">
+            <div
+              key={calendar.id}
+              className="flex items-center justify-between p-4 border rounded-lg"
+            >
               <div className="flex items-center space-x-3">
-                <div className={`w-4 h-4 rounded-full bg-${calendar.color}-500`}></div>
+                <div
+                  className={`w-4 h-4 rounded-full bg-${calendar.color}-500`}
+                ></div>
                 <div>
                   <h4 className="font-medium">{calendar.name}</h4>
-                  <StatusBadge status={calendar.isActive ? 'active' : 'inactive'}>
-                    {calendar.isActive ? 'Aktiivinen' : 'Ei aktiivinen'}
+                  {/* Tämä näyttää statuksen oikein */}
+                  <StatusBadge
+                    status={calendar.isActive ? "active" : "inactive"}
+                  >
+                    {calendar.isActive ? "Aktiivinen" : "Ei aktiivinen"}
                   </StatusBadge>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
                 <Button
-                  variant={calendar.isActive ? 'success' : 'secondary'}
+                  variant={calendar.isActive ? "success" : "secondary"}
                   size="sm"
-                  onClick={() => toggleCalendar(calendar.id)}
+                  onClick={() => toggleCalendar(calendar)}
                 >
-                  {calendar.isActive ? 'Aktiivinen' : 'Ei aktiivinen'}
+                  {calendar.isActive ? "Aktiivinen" : "Ei aktiivinen"}
                 </Button>
-                <Button variant="secondary" size="sm" onClick={() => handleOpenEditModal(calendar)}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleOpenEditModal(calendar)}
+                >
                   Muokkaa
                 </Button>
-                <Button variant="danger" size="sm" onClick={() => confirmDelete(calendar)}>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => confirmDelete(calendar)}
+                >
                   Poista
                 </Button>
               </div>
@@ -146,7 +195,11 @@ export const CalendarManagement: React.FC = () => {
         </div>
       </Card>
 
-      <CreateCalendarModal isOpen={modalOpen} onClose={() => setModalOpen(false)} onCreate={handleCreateCalendar} />
+      <CreateCalendarModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onCreate={handleCreateCalendar}
+      />
       {editingCalendar && (
         <EditCalendarModal
           isOpen={editModalOpen}

@@ -17,6 +17,7 @@ router.post('/createCalendar', spamGuard, async (req, res) => {
     const saved = await repo.save({
       alias,
       calendarId: newCalendar.id!,
+      isActive: false,
     });
 
     console.log("Calendar created successfully!");
