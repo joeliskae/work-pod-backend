@@ -24,10 +24,11 @@ app.get(/^\/admin(\/.*)?$/, (req, res) => {
 });
 
 const allowedOrigins = [
+  "http://localhost:80",
   "http://localhost:5173", // esim. frontend dev
   "http://localhost:3000", // esim. admin-panel
   "http://172.30.132.212:80", // uus ip
-  "https://f9f2-193-166-177-58.ngrok-free.app"
+  "https://f9f2-193-166-177-58.ngrok-free.app",
 ];
 
 async function startServer() {
@@ -41,7 +42,6 @@ async function startServer() {
     app.use(
       cors({
         origin: (origin, callback) => {
-
           if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
           } else {
@@ -56,7 +56,7 @@ async function startServer() {
     app.use("/api/v1", v1Routes);
 
     const PORT = Number(process.env.PORT) || 3000;
-    app.listen(PORT, '0.0.0.0', () => {
+    app.listen(PORT, "0.0.0.0", () => {
       console.log(`🚀 Server running on port ${PORT}`);
     });
   } catch (error) {
