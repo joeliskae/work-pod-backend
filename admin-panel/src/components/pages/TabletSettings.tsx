@@ -7,6 +7,8 @@ import { Dialog } from "../ui/Dialog";
 import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
 import { ConfirmModal } from "../ui/ConfirmModal";
+import { ColorSelect } from "../ui/ColorSelect";
+import { getCalendarIconColor } from "../../utils/colorUtils";
 
 export const TabletSettings: React.FC = () => {
   const [tablets, setTablets] = useState<Tablet[]>([]);
@@ -22,6 +24,7 @@ export const TabletSettings: React.FC = () => {
     location: "",
     calendarId: "",
     ipAddress: "",
+    color: "",
   });
 
   // --- Datahaku ---
@@ -50,7 +53,13 @@ export const TabletSettings: React.FC = () => {
   };
 
   const resetForm = () => {
-    setFormData({ name: "", location: "", calendarId: "", ipAddress: "" });
+    setFormData({
+      name: "",
+      location: "",
+      calendarId: "",
+      ipAddress: "",
+      color: "",
+    });
   };
 
   const handleAddTablet = async () => {
@@ -79,6 +88,7 @@ export const TabletSettings: React.FC = () => {
       location: tablet.location,
       calendarId: tablet.calendarId || "",
       ipAddress: tablet.ipAddress || "",
+      color: tablet.color || "red",
     });
     setShowEditModal(true);
   };
@@ -117,9 +127,12 @@ export const TabletSettings: React.FC = () => {
     if (!tabletToDelete) return;
 
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/tablets/delete/${tabletToDelete}`, {
-        method: "DELETE",
-      });
+      await fetch(
+        `${import.meta.env.VITE_API_URL}/tablets/delete/${tabletToDelete}`,
+        {
+          method: "DELETE",
+        }
+      );
       setTablets((prev) =>
         prev.filter((tablet) => tablet.id !== tabletToDelete)
       );
@@ -174,6 +187,13 @@ export const TabletSettings: React.FC = () => {
           onChange={handleInputChange}
         />
       </div>
+      <div className="space-y-2">
+        <Label htmlFor="color">Väri</Label>
+        <ColorSelect
+          value={formData.color}
+          onChange={(color) => setFormData((prev) => ({ ...prev, color }))}
+        />
+      </div>
     </div>
   );
 
@@ -195,7 +215,7 @@ export const TabletSettings: React.FC = () => {
               className="flex items-center justify-between p-4 border rounded-lg"
             >
               <div className="flex items-start space-x-4">
-                <TabletIcon className="w-24 h-24 text-blue-500 mt-1" />
+                <TabletIcon className={`w-24 h-24 ${getCalendarIconColor(tablet.color)} mt-1`} />
                 <div className="space-y-1">
                   <h4 className="font-medium text-lg">{tablet.name}</h4>
                   <p className="text-sm text-gray-500">

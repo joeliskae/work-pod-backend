@@ -17,4 +17,7 @@ export class Tablet {
   @Column()
   ipAddress!: string;
 
+  @Column({ default: 'red' })
+  color!: string;
+
 }

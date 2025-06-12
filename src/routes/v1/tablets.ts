@@ -9,7 +9,7 @@ const tabletRepo = AppDataSource.getRepository(Tablet);
 //TODO: Autentikaatiota taaaas..
 router.post("/tablets/add", spamGuard, async (req, res): Promise<void> => {
   try {
-    const { name, location, calendarId, ipAddress } = req.body;
+    const { name, location, calendarId, ipAddress, color } = req.body;
 
     if (!name || !location || !calendarId || !ipAddress) {
       res.status(400).json({ error: "Kaikki kentät ovat pakollisia." });
@@ -21,6 +21,7 @@ router.post("/tablets/add", spamGuard, async (req, res): Promise<void> => {
       location,
       calendarId,
       ipAddress,
+      color,
     });
 
     await tabletRepo.save(tablet);
@@ -64,7 +65,7 @@ router.delete("/tablets/delete/:id", spamGuard, async (req, res): Promise<void> 
 
 router.put('/tablets/edit/:id', spamGuard, async (req, res): Promise<void> => {
   const { id } = req.params;
-  const { name, location, calendarId, ipAddress } = req.body;
+  const { name, location, calendarId, ipAddress, color } = req.body;
 
   try {
     const tabletRepo = AppDataSource.getRepository(Tablet);
@@ -79,6 +80,7 @@ router.put('/tablets/edit/:id', spamGuard, async (req, res): Promise<void> => {
     tablet.location = location;
     tablet.calendarId = calendarId;
     tablet.ipAddress = ipAddress;
+    tablet.color = color;
 
     await tabletRepo.save(tablet);
     res.json(tablet);

@@ -17,6 +17,7 @@ export interface Tablet {
   location: string;
   calendarId: string; 
   ipAddress: string;  
+  color: string;
   // status: 'online' | 'offline' | 'unknown';
   // lastSeen: string;
 }
