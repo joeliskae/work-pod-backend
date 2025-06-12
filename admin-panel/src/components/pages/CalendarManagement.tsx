@@ -6,6 +6,7 @@ import { StatusBadge } from "../ui/StatusBadge";
 import { CreateCalendarModal } from "../ui/CreateCalendarModal";
 import { EditCalendarModal } from "../ui/EditCalendarModal";
 import { ConfirmModal } from "../ui/ConfirmModal";
+import { Calendar as CalendarIcon } from "lucide-react";
 
 export const CalendarManagement: React.FC = () => {
   const [calendars, setCalendars] = useState<CalendarType[]>([]);
@@ -154,9 +155,10 @@ export const CalendarManagement: React.FC = () => {
               className="flex items-center justify-between p-4 border rounded-lg"
             >
               <div className="flex items-center space-x-3">
-                <div
+                <CalendarIcon className="w-20 h-20 text-green-300 mt-1" />
+                {/* <div
                   className={`w-4 h-4 rounded-full bg-${calendar.color}-500`}
-                ></div>
+                ></div> */}
                 <div>
                   <h4 className="font-medium">{calendar.name}</h4>
                   {/* Tämä näyttää statuksen oikein */}

@@ -195,7 +195,7 @@ export const TabletSettings: React.FC = () => {
               className="flex items-center justify-between p-4 border rounded-lg"
             >
               <div className="flex items-start space-x-4">
-                <TabletIcon className="w-8 h-8 text-gray-600 mt-1" />
+                <TabletIcon className="w-24 h-24 text-blue-500 mt-1" />
                 <div className="space-y-1">
                   <h4 className="font-medium text-lg">{tablet.name}</h4>
                   <p className="text-sm text-gray-500">
