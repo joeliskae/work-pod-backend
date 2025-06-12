@@ -7,6 +7,7 @@ import { CreateCalendarModal } from "../ui/CreateCalendarModal";
 import { EditCalendarModal } from "../ui/EditCalendarModal";
 import { ConfirmModal } from "../ui/ConfirmModal";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { getCalendarIconColor } from "../../utils/colorUtils";
 
 export const CalendarManagement: React.FC = () => {
   const [calendars, setCalendars] = useState<CalendarType[]>([]);
@@ -28,23 +29,23 @@ export const CalendarManagement: React.FC = () => {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/calendars/admin`);
     const data = await res.json();
     setCalendars(
-      data.calendars.map((c: { alias: string, isActive: boolean }) => ({
+      data.calendars.map((c: { alias: string, isActive: boolean, color: string }) => ({
         id: c.alias,
         name: c.alias,
-        color: "blue",
+        color: c.color,
         isActive: c.isActive,
       }))
     );
   };
 
-  const handleCreateCalendar = async (alias: string) => {
+  const handleCreateCalendar = async (alias: string, color: string) => {
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/createCalendar`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ alias }),
+          body: JSON.stringify({ alias, color }),
         }
       );
       if (!res.ok) {
@@ -95,14 +96,14 @@ export const CalendarManagement: React.FC = () => {
     setEditModalOpen(true);
   };
 
-  const handleSaveEdit = async (id: string, newAlias: string) => {
+  const handleSaveEdit = async (id: string, newAlias: string, newColor: string) => {
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/editCalendar/${id}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ alias: newAlias }),
+          body: JSON.stringify({ alias: newAlias, color: newColor }),
         }
       );
       if (!res.ok) {
@@ -155,9 +156,9 @@ export const CalendarManagement: React.FC = () => {
               className="flex items-center justify-between p-4 border rounded-lg"
             >
               <div className="flex items-center space-x-3">
-                <CalendarIcon className="w-20 h-20 text-green-300 mt-1" />
+                <CalendarIcon className={`w-20 h-20 mt-1 ${getCalendarIconColor(calendar.color)}`} />
                 {/* <div
-                  className={`w-4 h-4 rounded-full bg-${calendar.color}-500`}
+                  className={`w-4 h-4 rounded-full ${getCalendarBadgeColor(calendar.color)}`}
                 ></div> */}
                 <div>
                   <h4 className="font-medium">{calendar.name}</h4>

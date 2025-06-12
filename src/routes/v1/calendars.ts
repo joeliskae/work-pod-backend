@@ -55,6 +55,7 @@ router.get("/calendars/admin", async (req, res) => {
     calendars: calendars.map((cal) => ({
       alias: cal.alias,
       isActive: cal.isActive,
+      color: cal.color,
     })),
   });
 });

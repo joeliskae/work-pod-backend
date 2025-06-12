@@ -4,7 +4,7 @@ import { ColorSelect } from "./ColorSelect";
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (alias: string) => Promise<void>;
+  onCreate: (alias: string, color: string) => Promise<void>;
 };
 
 export const CreateCalendarModal: React.FC<Props> = ({
@@ -27,7 +27,7 @@ export const CreateCalendarModal: React.FC<Props> = ({
     setError(null);
     setLoading(true);
     try {
-      await onCreate(alias.trim());
+      await onCreate(alias.trim(), color);
       setAlias("");
       setColor("gray");
       onClose();

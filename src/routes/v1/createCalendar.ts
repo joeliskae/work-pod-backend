@@ -8,7 +8,7 @@ const router = Router();
 
 // TODO: AUTENTIKAATIO!!!
 router.post('/createCalendar', spamGuard, async (req, res) => {
-  const { alias } = req.body;
+  const { alias, color = 'blue' } = req.body;
 
   try {
     const newCalendar = await createCalendar(alias);
@@ -18,6 +18,7 @@ router.post('/createCalendar', spamGuard, async (req, res) => {
       alias,
       calendarId: newCalendar.id!,
       isActive: false,
+      color,
     });
 
     console.log("Calendar created successfully!");

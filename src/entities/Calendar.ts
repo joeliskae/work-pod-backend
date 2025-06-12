@@ -13,4 +13,7 @@ export class Calendar {
 
   @Column({ default: false })
   isActive!: boolean;
+
+  @Column({ default: 'blue' })
+  color!: string;
 }
