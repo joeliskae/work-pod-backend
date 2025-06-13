@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const colors = [
@@ -95,7 +95,60 @@ type Props = {
 
 export const ColorSelect: React.FC<Props> = ({ value, onChange }) => {
   const [open, setOpen] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isScrollingRef = useRef(false);
   const selected = colors.find((c) => c.value === value);
+
+  // Create tripled array for infinite scrolling effect
+  const infiniteColors = [...colors, ...colors, ...colors];
+
+  useEffect(() => {
+    if (open && scrollRef.current) {
+      // Start from the middle section when opening
+      const itemHeight = 40; // Approximate height of each item (py-2 + content)
+      const middleStart = colors.length * itemHeight;
+      scrollRef.current.scrollTop = middleStart;
+    }
+  }, [open]);
+
+  const handleScroll = () => {
+    if (!scrollRef.current || isScrollingRef.current) return;
+
+    const container = scrollRef.current;
+    const itemHeight = 40;
+    const sectionHeight = colors.length * itemHeight;
+    const scrollTop = container.scrollTop;
+    const maxScroll = container.scrollHeight - container.clientHeight;
+
+    // If scrolled to the very top, jump to the end of first section
+    if (scrollTop <= 0) {
+      isScrollingRef.current = true;
+      container.scrollTop = sectionHeight * 2 - container.clientHeight;
+      setTimeout(() => {
+        isScrollingRef.current = false;
+      }, 10);
+    }
+    // If scrolled to the very bottom, jump to the start of second section
+    else if (scrollTop >= maxScroll) {
+      isScrollingRef.current = true;
+      container.scrollTop = sectionHeight;
+      setTimeout(() => {
+        isScrollingRef.current = false;
+      }, 10);
+    }
+    // If we're in the first section and scrolling up, prepare for loop
+    else if (scrollTop < sectionHeight && scrollTop > sectionHeight - container.clientHeight) {
+      // We're near the top of first section, this is normal
+    }
+    // If we're in the third section and scrolling down, prepare for loop  
+    else if (scrollTop > sectionHeight * 2 && scrollTop < sectionHeight * 2 + container.clientHeight) {
+      // We're near the bottom of third section, this is normal
+    }
+  };
+
+  const getColorFromTripleIndex = (index: number) => {
+    return colors[index % colors.length];
+  };
 
   return (
     <div className="relative inline-block w-full">
@@ -128,25 +181,30 @@ export const ColorSelect: React.FC<Props> = ({ value, onChange }) => {
       <AnimatePresence>
         {open && (
           <motion.div
+            ref={scrollRef}
             className="absolute z-10 mt-1 bg-white border border-gray-300 rounded shadow-lg overflow-auto max-h-60 w-full min-w-max"
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
             transition={{ duration: 0.15 }}
+            onScroll={handleScroll}
           >
-            {colors.map((color) => (
-              <button
-                key={color.value}
-                onClick={() => {
-                  onChange(color.value);
-                  setOpen(false);
-                }}
-                className="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center space-x-2 whitespace-nowrap"
-              >
-                <span className={`w-3 h-3 rounded-full flex-shrink-0 ${color.bgClass}`} />
-                <span className={`${color.colorClass}`}>{color.label}</span>
-              </button>
-            ))}
+            {infiniteColors.map((_color, index) => {
+              const actualColor = getColorFromTripleIndex(index);
+              return (
+                <button
+                  key={`${actualColor.value}-${index}`}
+                  onClick={() => {
+                    onChange(actualColor.value);
+                    setOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center space-x-2 whitespace-nowrap"
+                >
+                  <span className={`w-3 h-3 rounded-full flex-shrink-0 ${actualColor.bgClass}`} />
+                  <span className={`${actualColor.colorClass}`}>{actualColor.label}</span>
+                </button>
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>
