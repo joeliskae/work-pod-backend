@@ -12,6 +12,7 @@ import deleteCalendar from "./v1/deleteCalendar";
 import editCalendar from "./v1/editCalendar";
 import toggleACtive from "./v1/toggleActive";
 import tablets from "./v1/tablets";
+import drillDown from "./v1/analyticsDrillDown";
 // import busy from "./v1/busy";
 
 // TODO: poista cache endpoint ennen tuotantoa!!!
@@ -33,5 +34,6 @@ router.use(deleteCalendar);
 router.use(editCalendar);
 router.use(toggleACtive);
 router.use(tablets);
+router.use(drillDown);
 
 export default router;

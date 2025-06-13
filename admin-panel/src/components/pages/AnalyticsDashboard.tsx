@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { DrillDownModal } from "../ui/DrillDownModal";
 
 ChartJS.register(
   CategoryScale,
@@ -21,19 +22,38 @@ ChartJS.register(
   Legend
 );
 
+type CalendarInfo = {
+  alias: string;
+  name: string;
+  color: string;
+};
 type HourData = { hour: string; count: number };
 type WeekdayData = { weekday: string; count: number };
 type EventData = { action: string; count: number };
 type MonthData = { labels: string[]; data: number[] };
+
+type ModalState = {
+  isOpen: boolean;
+  title: string;
+  filterType: "hour" | "weekday" | "month" | "all";
+  filterValue: string | number;
+};
 
 export const AnalyticsDashboard: React.FC = () => {
   const [hourData, setHourData] = useState<HourData[]>([]);
   const [weekdayData, setWeekdayData] = useState<WeekdayData[]>([]);
   const [eventData, setEventData] = useState<EventData[]>([]);
   const [monthData, setMonthData] = useState<MonthData | null>(null);
+  const [calendarInfo, setCalendarInfo] = useState<CalendarInfo[]>([]);
+  const [modalState, setModalState] = useState<ModalState>({
+    isOpen: false,
+    title: "",
+    filterType: "hour",
+    filterValue: "",
+  });
 
-  const apiUrl = "http://172.30.132.212:3000/api/v1";
-  // const apiUrl = "http://localhost:3000/api/v1";
+  // const apiUrl = "http://172.30.132.212:3000/api/v1";
+  const apiUrl = "http://localhost:3000/api/v1";
 
   useEffect(() => {
     fetch(`${apiUrl}/analytics-hour`)
@@ -51,7 +71,34 @@ export const AnalyticsDashboard: React.FC = () => {
     fetch(`${apiUrl}/analytics-yearly`)
       .then(async (res) => res.ok && setMonthData(await res.json()))
       .catch(console.error);
+
+    fetch(`${apiUrl}/calendars/admin`)
+      .then(async (res) => {
+        if (res.ok) {
+          const data = await res.json();
+          // Ota kalenteritaulukko data.calendars -kentästä
+          setCalendarInfo(data.calendars);
+        }
+      })
+      .catch(console.error);
   }, []);
+
+  const openModal = (
+    title: string,
+    filterType: "hour" | "weekday" | "month" | "all",
+    filterValue: string | number
+  ) => {
+    setModalState({
+      isOpen: true,
+      title,
+      filterType,
+      filterValue,
+    });
+  };
+
+  const closeModal = () => {
+    setModalState((prev) => ({ ...prev, isOpen: false }));
+  };
 
   const hourChartData = {
     labels: hourData.map((d) => d.hour + ":00"),
@@ -64,6 +111,23 @@ export const AnalyticsDashboard: React.FC = () => {
         borderSkipped: false,
       },
     ],
+  };
+
+  const hourChartOptions = {
+    responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: 3,
+    plugins: { legend: { display: false } },
+    animation: { duration: 1500, easing: "easeOutQuart" as const },
+    onClick: (_event: any, elements: any[]) => {
+      if (elements.length > 0) {
+        const index = elements[0].index;
+        const hour = hourData[index]?.hour;
+        if (hour) {
+          openModal(`Varaukset klo ${hour}:00`, "hour", hour);
+        }
+      }
+    },
   };
 
   const daysOfWeek = ["Ma", "Ti", "Ke", "To", "Pe", "La", "Su"];
@@ -83,6 +147,28 @@ export const AnalyticsDashboard: React.FC = () => {
         borderSkipped: false,
       },
     ],
+  };
+
+  const weekChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    animation: { duration: 1500, easing: "easeOutQuart" as const },
+    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+    onClick: (_event: any, elements: any[]) => {
+      if (elements.length > 0) {
+        const index = elements[0].index;
+        const weekday = daysOfWeek[index];
+        const weekdayNumber = index + 1; // 1 = maanantai, 7 = sunnuntai
+        if (weekday) {
+          openModal(
+            `${weekday} - varaukset kalentereittain`,
+            "weekday",
+            weekdayNumber
+          );
+        }
+      }
+    },
   };
 
   const createdCount =
@@ -115,6 +201,27 @@ export const AnalyticsDashboard: React.FC = () => {
     ],
   };
 
+  const monthChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    animation: { duration: 1500, easing: "easeOutQuart" as const },
+    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+    onClick: (_event: any, elements: any[]) => {
+      if (elements.length > 0) {
+        const index = elements[0].index;
+        const monthLabel = monthData?.labels[index];
+        if (monthLabel) {
+          openModal(
+            `${monthLabel} - varaukset kalentereittain`,
+            "month",
+            monthLabel
+          );
+        }
+      }
+    },
+  };
+
   return (
     <div className="bg-white text-gray-900 p-8 w-full max-w-7xl mx-auto space-y-10">
       <h1 className="text-3xl font-bold text-center">Analytiikka</h1>
@@ -122,39 +229,23 @@ export const AnalyticsDashboard: React.FC = () => {
       {/* Tunnit */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Varaukset tunneittain</h2>
-        <Bar
-          data={hourChartData}
-          options={{
-            responsive: true,
-            maintainAspectRatio: true,
-            aspectRatio: 3,
-            plugins: { legend: { display: false } },
-            animation: { duration: 1500, easing: "easeOutQuart" },
-          }}
-        />
+        <div className="cursor-pointer">
+          <Bar data={hourChartData} options={hourChartOptions} />
+        </div>
       </section>
 
       {/* Viikkodata ja tapahtumat */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Varaukset päivittäin</h2>
-          <div className="h-96">
-            <Bar
-              data={weekChartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                animation: { duration: 1500, easing: "easeOutQuart" },
-                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
-              }}
-            />
+          <div className="h-96 cursor-pointer">
+            <Bar data={weekChartData} options={weekChartOptions} />
           </div>
         </div>
 
         <div className="flex flex-col items-center space-y-4">
           <h2 className="text-xl font-semibold self-start">Tapahtumat</h2>
-          <div className="h-96 flex flex-col justify-center items-center w-full">
+          <div className="h-96 flex flex-col justify-center items-center w-full cursor-pointer">
             <Doughnut
               data={eventsChartData}
               options={{
@@ -182,6 +273,10 @@ export const AnalyticsDashboard: React.FC = () => {
                   },
                 },
                 cutout: "65%",
+                onClick: (_event: any, _elements: any[]) => {
+                  // Donitsissa voidaan klikata mitä tahansa kohtaa näyttämään kaikki varaukset
+                  openModal("Kaikki varaukset kalentereittain", "all", "all");
+                },
               }}
             />
             <div className="absolute text-center pointer-events-none">
@@ -195,19 +290,21 @@ export const AnalyticsDashboard: React.FC = () => {
       {/* Kuukausidata */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Varaukset kuukausittain</h2>
-        <div className="h-96">
-          <Bar
-            data={monthChartData}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: { legend: { display: false } },
-              animation: { duration: 1500, easing: "easeOutQuart" },
-              scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
-            }}
-          />
+        <div className="h-96 cursor-pointer">
+          <Bar data={monthChartData} options={monthChartOptions} />
         </div>
       </section>
+
+      {/* DrillDown Modal */}
+      <DrillDownModal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        title={modalState.title}
+        filterType={modalState.filterType}
+        filterValue={modalState.filterValue}
+        apiUrl={apiUrl}
+        calendarInfo={calendarInfo}
+      />
     </div>
   );
 };
