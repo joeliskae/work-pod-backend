@@ -2,12 +2,13 @@ import { Router } from "express";
 import { AppDataSource } from "../../data-source";
 import { Tablet } from "../../entities/TabletEntity";
 import { spamGuard } from "../../middleware/spamGuard";
+import { ensureAuthenticated } from "../../middleware/auth";
 
 const router = Router();
 const tabletRepo = AppDataSource.getRepository(Tablet);
 
 //TODO: Autentikaatiota taaaas..
-router.post("/tablets/add", spamGuard, async (req, res): Promise<void> => {
+router.post("/tablets/add", ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
   try {
     const { name, location, calendarId, ipAddress, color } = req.body;
 
@@ -35,7 +36,7 @@ router.post("/tablets/add", spamGuard, async (req, res): Promise<void> => {
   }
 });
 
-router.get("/tablets/get", spamGuard, async (req, res): Promise<void> => {
+router.get("/tablets/get", ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
   try {
     const tablets = await tabletRepo.find();
 
@@ -48,7 +49,7 @@ router.get("/tablets/get", spamGuard, async (req, res): Promise<void> => {
   }
 });
 
-router.delete("/tablets/delete/:id", spamGuard, async (req, res): Promise<void> => {
+router.delete("/tablets/delete/:id", ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
   try {
     const { id } = req.params;
     const result = await tabletRepo.delete(id);
@@ -63,7 +64,7 @@ router.delete("/tablets/delete/:id", spamGuard, async (req, res): Promise<void> 
   }
 });
 
-router.put('/tablets/edit/:id', spamGuard, async (req, res): Promise<void> => {
+router.put('/tablets/edit/:id', ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
   const { id } = req.params;
   const { name, location, calendarId, ipAddress, color } = req.body;
 

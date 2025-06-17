@@ -13,14 +13,15 @@ import editCalendar from "./v1/editCalendar";
 import toggleACtive from "./v1/toggleActive";
 import tablets from "./v1/tablets";
 import drillDown from "./v1/analyticsDrillDown";
+import adminUsers from "./v1/adminUsers";
 // import busy from "./v1/busy";
 
 // TODO: poista cache endpoint ennen tuotantoa!!!
-import cache from "./v1/debug";
+// import cache from "./v1/debug";
 
 const router = Router();
 
-router.use(cache);
+// router.use(cache);
 router.use(book);
 // router.use(busy); // Tätä endpointtia ei taideta käyttää, eikä se muuten edes toimi :)
 router.use(events);
@@ -35,5 +36,6 @@ router.use(editCalendar);
 router.use(toggleACtive);
 router.use(tablets);
 router.use(drillDown);
+router.use(adminUsers);
 
 export default router;

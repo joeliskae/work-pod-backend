@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { useAuth } from './hooks/useAuth';
 import { LoginPage } from './components/auth/LoginPage';
 import { Navigation } from './components/navigation/Navigation';
@@ -6,8 +7,12 @@ import { AnalyticsDashboard } from './components/pages/AnalyticsDashboard';
 import { CalendarManagement } from './components/pages/CalendarManagement';
 import { TabletSettings } from './components/pages/TabletSettings';
 import { InfoPage } from './components/pages/InfoPage';
+import { UserSettings } from './components/pages/UserSettings';
 
-const App: React.FC = () => {
+// Laita tähän Google OAuth Client ID
+const GOOGLE_CLIENT_ID = `${import.meta.env.VITE_GOOGLE_CLIENT_ID}`
+
+const AppContent: React.FC = () => {
   const { user, login, logout, isAuthenticated } = useAuth();
   const [currentPage, setCurrentPage] = useState('analytics');
 
@@ -25,6 +30,8 @@ const App: React.FC = () => {
         return <TabletSettings />;
       case 'info':
         return <InfoPage />;
+      case 'user':
+        return <UserSettings/>;
       default:
         return <AnalyticsDashboard />;
     }
@@ -42,6 +49,14 @@ const App: React.FC = () => {
         {renderCurrentPage()}
       </main>
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <AppContent />
+    </GoogleOAuthProvider>
   );
 };
 
