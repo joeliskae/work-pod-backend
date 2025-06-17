@@ -96,7 +96,7 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
       <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900">Kirjaudu sisään</h2>
-          <p className="mt-2 text-gray-600">Admin-paneeliin Google-tunnuksilla</p>
+          <p className="mt-2 text-gray-600">Admin-paneeliin LAB-tunnuksilla</p>
         </div>
 
         <Card className="flex justify-center p-6">
