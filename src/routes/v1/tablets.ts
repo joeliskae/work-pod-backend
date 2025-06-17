@@ -7,7 +7,6 @@ import { ensureAuthenticated } from "../../middleware/auth";
 const router = Router();
 const tabletRepo = AppDataSource.getRepository(Tablet);
 
-//TODO: Autentikaatiota taaaas..
 router.post("/tablets/add", ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
   try {
     const { name, location, calendarId, ipAddress, color } = req.body;

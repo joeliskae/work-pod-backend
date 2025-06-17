@@ -3,11 +3,11 @@ import { createCalendar } from '../../services/googleCalendar';
 import { AppDataSource } from '../../data-source';
 import { Calendar } from '../../entities/Calendar';
 import { spamGuard } from '../../middleware/spamGuard';
+import { ensureAuthenticated } from '../../middleware/auth';
 
 const router = Router();
 
-// TODO: AUTENTIKAATIO!!!
-router.post('/createCalendar', spamGuard, async (req, res) => {
+router.post('/createCalendar', ensureAuthenticated, spamGuard, async (req, res) => {
   const { alias, color = 'blue' } = req.body;
 
   try {

@@ -3,6 +3,8 @@ import { AppDataSource } from "../../data-source"; // tai missä ikinä onkaan
 import { ReservationMetric } from "../../entities/ReservationMetrics";
 import { DateTime } from "luxon";
 import { Calendar } from "../../entities/Calendar";
+import { ensureAuthenticated } from "../../middleware/auth";
+import { spamGuard } from "../../middleware/spamGuard";
 
 const router = Router();
 
@@ -23,7 +25,7 @@ const monthNamesFi: Record<string, number> = {
 };
 
 // Spesifinen aikaväli (tunti/viikonpäivä/kuukausi)
-router.get("/analytics-drilldown", async (req: Request, res: Response) => {
+router.get("/analytics-drilldown", ensureAuthenticated, spamGuard, async (req: Request, res: Response) => {
   try {
     const { type, value } = req.query;
 
@@ -93,7 +95,7 @@ router.get("/analytics-drilldown", async (req: Request, res: Response) => {
 });
 
 // Kaikki varaukset kalentereittain
-router.get("/analytics-drilldown-all", async (req: Request, res: Response) => {
+router.get("/analytics-drilldown-all", ensureAuthenticated, spamGuard, async (req: Request, res: Response) => {
   try {
     const metricRepo = AppDataSource.getRepository(ReservationMetric);
     const calendarRepo = AppDataSource.getRepository(Calendar); // <-- Muista tuoda tämä

@@ -11,6 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import { DrillDownModal } from "../ui/DrillDownModal";
+import { useAuth } from "../../hooks/useAuth";
 
 ChartJS.register(
   CategoryScale,
@@ -40,6 +41,7 @@ type ModalState = {
 };
 
 export const AnalyticsDashboard: React.FC = () => {
+  const { authToken } = useAuth(); // <-- Hae token
   const [hourData, setHourData] = useState<HourData[]>([]);
   const [weekdayData, setWeekdayData] = useState<WeekdayData[]>([]);
   const [eventData, setEventData] = useState<EventData[]>([]);
@@ -56,23 +58,45 @@ export const AnalyticsDashboard: React.FC = () => {
   const apiUrl = "http://localhost:3000/api/v1";
 
   useEffect(() => {
-    fetch(`${apiUrl}/analytics-hour`)
+    if (!authToken) return;
+
+    fetch(`${apiUrl}/analytics-hour`, {
+       headers: {
+      Authorization: `Bearer ${authToken}`,
+    },
+    })
       .then(async (res) => res.ok && setHourData(await res.json()))
       .catch(console.error);
 
-    fetch(`${apiUrl}/analytics-week`)
+    fetch(`${apiUrl}/analytics-week`, {
+      headers: {
+      Authorization: `Bearer ${authToken}`,
+    },
+    })
       .then(async (res) => res.ok && setWeekdayData(await res.json()))
       .catch(console.error);
 
-    fetch(`${apiUrl}/analytics-events`)
+    fetch(`${apiUrl}/analytics-events`, {
+      headers: {
+      Authorization: `Bearer ${authToken}`,
+    },
+    })
       .then(async (res) => res.ok && setEventData(await res.json()))
       .catch(console.error);
 
-    fetch(`${apiUrl}/analytics-yearly`)
+    fetch(`${apiUrl}/analytics-yearly`, {
+      headers: {
+      Authorization: `Bearer ${authToken}`,
+    },
+    })
       .then(async (res) => res.ok && setMonthData(await res.json()))
       .catch(console.error);
 
-    fetch(`${apiUrl}/calendars/admin`)
+    fetch(`${apiUrl}/calendars/admin`, {
+      headers: {
+      Authorization: `Bearer ${authToken}`,
+    },
+    })
       .then(async (res) => {
         if (res.ok) {
           const data = await res.json();
@@ -81,7 +105,7 @@ export const AnalyticsDashboard: React.FC = () => {
         }
       })
       .catch(console.error);
-  }, []);
+  }, [authToken]);
 
   const openModal = (
     title: string,
@@ -304,6 +328,7 @@ export const AnalyticsDashboard: React.FC = () => {
         filterValue={modalState.filterValue}
         apiUrl={apiUrl}
         calendarInfo={calendarInfo}
+        authToken={authToken}
       />
     </div>
   );

@@ -8,8 +8,11 @@ import { EditCalendarModal } from "../ui/EditCalendarModal";
 import { ConfirmModal } from "../ui/ConfirmModal";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { getCalendarIconColor } from "../../utils/colorUtils";
+import { useAuth } from "../../hooks/useAuth"; // <-- Tuo useAuth
 
 export const CalendarManagement: React.FC = () => {
+  const { authToken } = useAuth(); // <-- Hae token
+
   const [calendars, setCalendars] = useState<CalendarType[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -21,33 +24,48 @@ export const CalendarManagement: React.FC = () => {
     null
   );
 
+  // Funktio headerien rakentamiseen
+  const getAuthHeaders = () => ({
+    "Content-Type": "application/json",
+    ...(authToken && { Authorization: `Bearer ${authToken}` }),
+  });
+
   useEffect(() => {
-    fetchCalendars();
-  }, []);
+    if (authToken) {
+      fetchCalendars();
+    }
+  }, [authToken]);
 
   const fetchCalendars = async () => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/calendars/admin`);
-    const data = await res.json();
-    setCalendars(
-      data.calendars.map((c: { alias: string, isActive: boolean, color: string }) => ({
-        id: c.alias,
-        name: c.alias,
-        color: c.color,
-        isActive: c.isActive,
-      }))
-    );
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/calendars/admin`, {
+        headers: getAuthHeaders(),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Virhe kalentereiden haussa");
+      }
+      const data = await res.json();
+      setCalendars(
+        data.calendars.map((c: { alias: string; isActive: boolean; color: string }) => ({
+          id: c.alias,
+          name: c.alias,
+          color: c.color,
+          isActive: c.isActive,
+        }))
+      );
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Virhe kalentereiden haussa");
+    }
   };
 
   const handleCreateCalendar = async (alias: string, color: string) => {
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/createCalendar`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ alias, color }),
-        }
-      );
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/createCalendar`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ alias, color }),
+      });
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error || "Virhe kalenterin luonnissa");
@@ -55,9 +73,7 @@ export const CalendarManagement: React.FC = () => {
       await fetchCalendars();
       setModalOpen(false);
     } catch (error) {
-      alert(
-        error instanceof Error ? error.message : "Virhe kalenterin luonnissa"
-      );
+      alert(error instanceof Error ? error.message : "Virhe kalenterin luonnissa");
     }
   };
 
@@ -70,11 +86,10 @@ export const CalendarManagement: React.FC = () => {
     if (!calendarToDelete) return;
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/deleteCalendar/${
-          calendarToDelete.name
-        }`,
+        `${import.meta.env.VITE_API_URL}/deleteCalendar/${calendarToDelete.name}`,
         {
           method: "DELETE",
+          headers: getAuthHeaders(),
         }
       );
       if (!res.ok) {
@@ -85,9 +100,7 @@ export const CalendarManagement: React.FC = () => {
       setConfirmDeleteOpen(false);
       setCalendarToDelete(null);
     } catch (error) {
-      alert(
-        error instanceof Error ? error.message : "Virhe kalenterin poistossa"
-      );
+      alert(error instanceof Error ? error.message : "Virhe kalenterin poistossa");
     }
   };
 
@@ -98,14 +111,11 @@ export const CalendarManagement: React.FC = () => {
 
   const handleSaveEdit = async (id: string, newAlias: string, newColor: string) => {
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/editCalendar/${id}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ alias: newAlias, color: newColor }),
-        }
-      );
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/editCalendar/${id}`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ alias: newAlias, color: newColor }),
+      });
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error || "Virhe kalenterin päivittämisessä");
@@ -114,25 +124,22 @@ export const CalendarManagement: React.FC = () => {
       setEditModalOpen(false);
       setEditingCalendar(null);
     } catch (error) {
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Virhe kalenterin päivittämisessä"
-      );
+      alert(error instanceof Error ? error.message : "Virhe kalenterin päivittämisessä");
     }
   };
 
   const toggleCalendar = async (calendar: CalendarType) => {
     try {
-      await fetch(
-        `${import.meta.env.VITE_API_URL}/toggleActive/${calendar.id}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ isActive: !calendar.isActive }),
-        }
-      );
-      await fetchCalendars(); // Päivitä lista uudestaan
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/toggleActive/${calendar.id}`, {
+        method: "PATCH",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ isActive: !calendar.isActive }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Virhe kalenterin päivittämisessä");
+      }
+      await fetchCalendars();
     } catch (err) {
       alert("Virhe kalenterin päivittämisessä");
     }
@@ -156,16 +163,12 @@ export const CalendarManagement: React.FC = () => {
               className="flex items-center justify-between p-4 border rounded-lg"
             >
               <div className="flex items-center space-x-3">
-                <CalendarIcon className={`w-20 h-20 mt-1 ${getCalendarIconColor(calendar.color)}`} />
-                {/* <div
-                  className={`w-4 h-4 rounded-full ${getCalendarBadgeColor(calendar.color)}`}
-                ></div> */}
+                <CalendarIcon
+                  className={`w-20 h-20 mt-1 ${getCalendarIconColor(calendar.color)}`}
+                />
                 <div>
                   <h4 className="font-medium">{calendar.name}</h4>
-                  {/* Tämä näyttää statuksen oikein */}
-                  <StatusBadge
-                    status={calendar.isActive ? "active" : "inactive"}
-                  >
+                  <StatusBadge status={calendar.isActive ? "active" : "inactive"}>
                     {calendar.isActive ? "Aktiivinen" : "Ei aktiivinen"}
                   </StatusBadge>
                 </div>

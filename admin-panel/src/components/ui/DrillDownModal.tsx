@@ -22,6 +22,7 @@ type DrillDownModalProps = {
   filterValue: string | number;
   apiUrl: string;
   calendarInfo: CalendarInfo[];
+  authToken: string | null;
 };
 
 export const DrillDownModal: React.FC<DrillDownModalProps> = ({
@@ -32,6 +33,7 @@ export const DrillDownModal: React.FC<DrillDownModalProps> = ({
   filterValue,
   apiUrl,
   calendarInfo,
+  authToken,
 }) => {
   const [calendarData, setCalendarData] = useState<CalendarData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -46,7 +48,11 @@ export const DrillDownModal: React.FC<DrillDownModalProps> = ({
         ? `${apiUrl}/analytics-drilldown-all`
         : `${apiUrl}/analytics-drilldown?type=${filterType}&value=${filterValue}`;
 
-    fetch(endpoint)
+    fetch(endpoint, {
+      headers: {
+      Authorization: `Bearer ${authToken}`,
+    },
+    })
       .then(async (res) => {
         if (res.ok) {
           const data = await res.json();

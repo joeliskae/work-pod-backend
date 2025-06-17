@@ -3,13 +3,14 @@ import { AppDataSource } from "../../data-source";
 import { User } from "../../entities/User";
 import { spamGuard } from "../../middleware/spamGuard";
 import jwt from "jsonwebtoken";
+import { ensureAuthenticated } from "../../middleware/auth";
 
 const router = Router();
 const userRepo = AppDataSource.getRepository(User);
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"; // tuotantoon .env!
 
 // GET kaikki käyttäjät
-router.get("/users/get", spamGuard, async (req, res) => {
+router.get("/users/get", ensureAuthenticated, spamGuard, async (req, res) => {
   try {
     const users = await userRepo.find();
     res.json(users);
@@ -19,7 +20,7 @@ router.get("/users/get", spamGuard, async (req, res) => {
 });
 
 // POST lisää uusi käyttäjä
-router.post("/users/add", spamGuard, async (req, res) => {
+router.post("/users/add", ensureAuthenticated, spamGuard, async (req, res) => {
   try {
     const { name, email, role } = req.body;
     const newUser = userRepo.create({ name, email, role });
@@ -31,7 +32,7 @@ router.post("/users/add", spamGuard, async (req, res) => {
 });
 
 // PUT muokkaa käyttäjää
-router.put("/users/edit/:id", spamGuard, async (req, res): Promise<void> => {
+router.put("/users/edit/:id", ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
   try {
     const { id } = req.params;
     const { name, email, role } = req.body;
@@ -54,7 +55,7 @@ router.put("/users/edit/:id", spamGuard, async (req, res): Promise<void> => {
 });
 
 // DELETE poista käyttäjä
-router.delete("/users/delete/:id", spamGuard, async (req, res): Promise<void> => {
+router.delete("/users/delete/:id", ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
   try {
     const { id } = req.params;
     const result = await userRepo.delete(id);

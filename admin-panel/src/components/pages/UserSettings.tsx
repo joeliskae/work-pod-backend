@@ -7,8 +7,11 @@ import { Dialog } from "../ui/Dialog";
 import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
 import { ConfirmModal } from "../ui/ConfirmModal";
+import { useAuth } from "../../hooks/useAuth"; // <-- Tuo tämä
 
 export const UserSettings: React.FC = () => {
+  const { authToken } = useAuth(); // <-- Haetaan token
+
   const [users, setUsers] = useState<User[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -23,10 +26,18 @@ export const UserSettings: React.FC = () => {
     role: "",
   });
 
+  // Header-funktio tokenilla
+  const getAuthHeaders = () => ({
+    "Content-Type": "application/json",
+    ...(authToken && { Authorization: `Bearer ${authToken}` }),
+  });
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/users/get`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/users/get`, {
+          headers: getAuthHeaders(),
+        });
         const data = await response.json();
         setUsers(data);
       } catch (error) {
@@ -34,8 +45,10 @@ export const UserSettings: React.FC = () => {
       }
     };
 
-    fetchUsers();
-  }, []);
+    if (authToken) {
+      fetchUsers();
+    }
+  }, [authToken]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData((prev) => ({
@@ -56,7 +69,7 @@ export const UserSettings: React.FC = () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/users/add`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify(formData),
       });
       const newUser = await response.json();
@@ -84,7 +97,7 @@ export const UserSettings: React.FC = () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/users/edit/${userToEdit.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(),
         body: JSON.stringify(formData),
       });
       const updatedUser = await response.json();
@@ -109,6 +122,7 @@ export const UserSettings: React.FC = () => {
     try {
       await fetch(`${import.meta.env.VITE_API_URL}/users/delete/${userToDelete}`, {
         method: "DELETE",
+        headers: getAuthHeaders(),
       });
       setUsers((prev) => prev.filter((user) => user.id !== userToDelete));
     } catch (error) {
@@ -174,7 +188,11 @@ export const UserSettings: React.FC = () => {
               className="flex items-center justify-between p-4 border rounded-lg"
             >
               <div className="flex items-start space-x-4">
-                <UserIcon className={`w-16 h-16 ${user.role === "admin" ? "text-red-400" : "text-green-300"}  mt-1`} />
+                <UserIcon
+                  className={`w-16 h-16 ${
+                    user.role === "admin" ? "text-red-400" : "text-green-300"
+                  }  mt-1`}
+                />
                 <div className="space-y-1">
                   <h4 className="font-medium text-lg">{user.name}</h4>
                   <p className="text-sm text-gray-500">{user.email}</p>

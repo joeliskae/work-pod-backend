@@ -21,7 +21,7 @@ interface HourCount {
 // TODO: Muista laittaa autentikaatio päälle!!!
 // GET /api/v1/analytics-hour
 
-router.get("/analytics-hour", spamGuard, (req, res) => {
+router.get("/analytics-hour", ensureAuthenticated, spamGuard, (req, res) => {
   const query = `
     SELECT event_start
     FROM reservation_metrics
@@ -55,7 +55,7 @@ router.get("/analytics-hour", spamGuard, (req, res) => {
 });
 
 // GET /api/v1/analytics-week
-router.get("/analytics-week", spamGuard, (req, res) => {
+router.get("/analytics-week", ensureAuthenticated, spamGuard, (req, res) => {
   const query = `
     SELECT strftime('%w', event_start) AS weekday, COUNT(*) AS count
     FROM reservation_metrics
@@ -75,7 +75,7 @@ router.get("/analytics-week", spamGuard, (req, res) => {
 });
 
 // GET /api/v1/analytics-events
-router.get("/analytics-events", spamGuard, (req, res) => {
+router.get("/analytics-events", ensureAuthenticated, spamGuard, (req, res) => {
   const query = `
     SELECT action, COUNT(*) AS count
     FROM reservation_metrics
@@ -93,7 +93,7 @@ router.get("/analytics-events", spamGuard, (req, res) => {
   });
 });
 
-router.get("/analytics-yearly", spamGuard, (req, res) => {
+router.get("/analytics-yearly", ensureAuthenticated, spamGuard, (req, res) => {
   const year = new Date().getFullYear().toString();
 
   const query = `
