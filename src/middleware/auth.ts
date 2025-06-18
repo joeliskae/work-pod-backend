@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import { AuthenticatedRequest } from "../types/auth";
+import { getRepository } from "typeorm";
+import { Tablet } from "../entities/TabletEntity";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -18,12 +20,46 @@ export const ensureAuthenticated = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     // if (process.env.NODE_ENV === "development") return next();
 
-    // Tablet check  
-    const isTabletClient = req.headers["x-client-type"] === "tablet";
-    if (isTabletClient) {
-      // Ei autentikointia, jatka suoraan
-      return next();
+    // Tablet check with IP validation
+const isTabletClient = req.headers["x-client-type"] === "tablet";
+if (isTabletClient) {
+  try {
+    // Hae clientin IP-osoite
+    const clientIp = req.ip || 
+                     req.connection.remoteAddress || 
+                     req.socket.remoteAddress ||
+                     (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim();
+    
+    if (!clientIp) {
+      res.status(403).json({ error: 'IP-osoitetta ei voitu määrittää' });
+      return; 
     }
+
+    // Tarkista löytyykö IP tietokannasta
+    const tabletRepository = getRepository(Tablet);
+    const authorizedTablet = await tabletRepository.findOne({
+      where: { ipAddress: clientIp }
+    });
+
+    if (!authorizedTablet) {
+      console.log(`Unauthorized tablet access attempt from IP: ${clientIp}`);
+      res.status(403).json({ 
+        error: 'Tablet ei ole rekisteröity tälle IP-osoitteelle' 
+      });
+      return; 
+    }
+    
+    console.log(`Authorized tablet access: ${authorizedTablet.name} from ${clientIp}`);
+    
+    // Sallittu tablet, jatka suoraan
+    return next();
+    
+  } catch (error) {
+    console.error('Virhe tablet-autentikoinnissa:', error);
+    res.status(500).json({ error: 'Sisäinen palvelinvirhe' });
+    return; 
+  }
+}
 
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
