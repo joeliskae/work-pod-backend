@@ -55,8 +55,9 @@ export const AnalyticsDashboard: React.FC = () => {
   });
 
   // const apiUrl = "http://172.30.132.212:3000/api/v1";
-  const apiUrl = "http://localhost:3000/api/v1";
-
+  // const apiUrl = "http://localhost:3000/api/v1";
+  const apiUrl = `${import.meta.env.VITE_API_URL}`;
+  
   useEffect(() => {
     if (!authToken) return;
 
