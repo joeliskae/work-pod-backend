@@ -23,7 +23,7 @@ export const UserSettings: React.FC = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    role: "",
+    role: "user", // Oletusarvo
   });
 
   // Header-funktio tokenilla
@@ -50,22 +50,26 @@ export const UserSettings: React.FC = () => {
     }
   }, [authToken]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
+  const handleInputChange = (e: React.ChangeEvent<any>) => {
+  const { name, value } = e.target;
+  // console.log("Input change:", name, value); // DEBUG
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+};
+
 
   const resetForm = () => {
     setFormData({
       name: "",
       email: "",
-      role: "",
+      role: "user",
     });
   };
 
   const handleAddUser = async () => {
+    // console.log("formData ennen lähettämistä: ", formData); //TODO: Poista
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/users/add`, {
         method: "POST",
