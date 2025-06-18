@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { getCalendarMap } from "../../config/calendarMap";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { getCachedEvents } from "../../cache/calendarCache";
 import { calendar_v3 } from "googleapis";
@@ -16,9 +15,8 @@ function isEventOngoingNow(event: calendar_v3.Schema$Event): boolean {
   return start <= now && now < end;
 }
 
-//TODO: autentikaatio....
 // GET /api/v1/calendars
-router.get("/calendars", async (req, res) => {
+router.get("/calendars", ensureAuthenticated, async (req, res) => {
   try {
     const calendarsInDb = await AppDataSource.getRepository(Calendar).find({
       where: { isActive: true },
@@ -48,7 +46,7 @@ router.get("/calendars", async (req, res) => {
 });
 
 
-router.get("/calendars/admin", async (req, res) => {
+router.get("/calendars/admin", ensureAuthenticated, async (req, res) => {
   const repo = AppDataSource.getRepository(Calendar);
   const calendars = await repo.find();
   res.json({

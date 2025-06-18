@@ -63,3 +63,34 @@ export const getCalendarBadgeColor = (color: string): string => {
   
   return colorMap[color] || 'bg-gray-500';
 };
+
+
+// Tailwind-värit rgba:na pihalle
+export const tailwindColorToRgba = (color: string, alpha: number = 0.6): string => {
+  const colorMap: Record<string, string> = {
+    gray: '#6B7280',
+    red: '#EF4444',
+    orange: '#F97316',
+    amber: '#F59E0B',
+    yellow: '#EAB308',
+    lime: '#84CC16',
+    green: '#22C55E',
+    emerald: '#10B981',
+    cyan: '#06B6D4',
+    blue: '#3B82F6',
+    violet: '#8B5CF6',
+    purple: '#A855F7',
+    pink: '#EC4899',
+    rose: '#F43F5E',
+  };
+
+  const hex = colorMap[color] || '#3B82F6'; // oletus sininen
+
+  // Hex → RGBA
+  const bigint = parseInt(hex.replace(/^#/, ''), 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};

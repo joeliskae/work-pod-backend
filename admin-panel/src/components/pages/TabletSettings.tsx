@@ -9,8 +9,10 @@ import { Label } from "../ui/Label";
 import { ConfirmModal } from "../ui/ConfirmModal";
 import { ColorSelect } from "../ui/ColorSelect";
 import { getCalendarIconColor } from "../../utils/colorUtils";
+import { useAuth } from "../../hooks/useAuth";
 
 export const TabletSettings: React.FC = () => {
+  const { authToken } = useAuth(); // Haetaan token useAuth hookista
   const [tablets, setTablets] = useState<Tablet[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -27,12 +29,21 @@ export const TabletSettings: React.FC = () => {
     color: "",
   });
 
+  // Apufunktio headereiden luomiseen
+  const getAuthHeaders = () => ({
+    "Content-Type": "application/json",
+    ...(authToken && { Authorization: `Bearer ${authToken}` }),
+  });
+
   // --- Datahaku ---
   useEffect(() => {
     const fetchTablets = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/tablets/get`
+          `${import.meta.env.VITE_API_URL}/tablets/get`,
+          {
+            headers: getAuthHeaders(),
+          }
         );
         const data = await response.json();
         setTablets(data);
@@ -41,8 +52,11 @@ export const TabletSettings: React.FC = () => {
       }
     };
 
-    fetchTablets();
-  }, []);
+    // Haetaan data vain jos token on saatavilla
+    if (authToken) {
+      fetchTablets();
+    }
+  }, [authToken]);
 
   // --- Lomakkeen käsittely ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,7 +82,7 @@ export const TabletSettings: React.FC = () => {
         `${import.meta.env.VITE_API_URL}/tablets/add`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: getAuthHeaders(),
           body: JSON.stringify(formData),
         }
       );
@@ -101,7 +115,7 @@ export const TabletSettings: React.FC = () => {
         `${import.meta.env.VITE_API_URL}/tablets/edit/${tabletToEdit.id}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: getAuthHeaders(),
           body: JSON.stringify(formData),
         }
       );
@@ -131,6 +145,7 @@ export const TabletSettings: React.FC = () => {
         `${import.meta.env.VITE_API_URL}/tablets/delete/${tabletToDelete}`,
         {
           method: "DELETE",
+          headers: getAuthHeaders(),
         }
       );
       setTablets((prev) =>

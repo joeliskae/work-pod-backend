@@ -5,9 +5,10 @@ import {
   Tablet, 
   Info, 
   LogOut, 
-  User, 
+  // User, 
   Menu,
-  X
+  X,
+  UserIcon
 } from 'lucide-react';
 import { type User as UserType } from '../../types';
 
@@ -26,19 +27,28 @@ export const Navigation: React.FC<NavigationProps> = ({
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const menuItems = [
-    { id: 'analytics', label: 'Analytiikka', icon: BarChart3 },
-    { id: 'calendars', label: 'Kalenterit', icon: Calendar },
-    { id: 'tablets', label: 'Tabletit', icon: Tablet },
-    { id: 'info', label: 'Tietoja', icon: Info },
+  // Kaikki mahdolliset sivut
+  const allMenuItems = [
+    { id: 'analytics', label: 'Analytiikka', icon: BarChart3, roles: ['admin', 'user'] },
+    { id: 'calendars', label: 'Kalenterit', icon: Calendar, roles: ['admin'] },
+    { id: 'tablets', label: 'Tabletit', icon: Tablet, roles: ['admin'] },
+    { id: 'user', label: 'Users', icon: UserIcon, roles: ['admin'] },
+    { id: 'info', label: 'Info', icon: Info, roles: ['admin', 'user'] },
   ];
+
+  // Filtteröi sivut käyttäjän roolin mukaan
+  const menuItems = allMenuItems.filter(item => 
+    item.roles.includes(user.role)
+  );
 
   return (
     <nav className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
+            <h1 className="text-xl font-bold text-gray-900">
+              {user.role === 'admin' ? 'Admin Panel' : 'Käyttäjäpaneeli'}
+            </h1>
           </div>
           
           {/* Desktop Navigation */}
@@ -62,7 +72,10 @@ export const Navigation: React.FC<NavigationProps> = ({
           {/* User Menu */}
           <div className="flex items-center space-x-4">
             <div className="hidden md:flex items-center space-x-2">
-              <User className="w-4 h-4 text-gray-500" />
+              {/* Näytä käyttäjän rooli */}
+              {/* <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+                {user.role === 'admin' ? 'Admin' : 'Käyttäjä'}
+              </span> */}
               <span className="text-sm text-gray-700">{user.name}</span>
             </div>
             <button
@@ -88,6 +101,14 @@ export const Navigation: React.FC<NavigationProps> = ({
       {isMobileMenuOpen && (
         <div className="md:hidden border-t">
           <div className="px-2 pt-2 pb-3 space-y-1">
+            {/* Mobiilinäkymässä näytetään myös käyttäjän rooli */}
+            <div className="px-3 py-2 text-sm text-gray-500 border-b">
+              <span className="font-medium">{user.name}</span>
+              <span className="ml-2 text-xs px-2 py-1 rounded-full bg-gray-100">
+                {user.role === 'admin' ? 'Admin' : 'Käyttäjä'}
+              </span>
+            </div>
+            
             {menuItems.map((item) => (
               <button
                 key={item.id}

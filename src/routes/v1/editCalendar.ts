@@ -2,10 +2,11 @@ import { Router } from 'express';
 import { AppDataSource } from '../../data-source';
 import { Calendar } from '../../entities/Calendar';
 import { spamGuard } from '../../middleware/spamGuard';
+import { ensureAuthenticated } from '../../middleware/auth';
 
 const router = Router();
 
-router.post('/editCalendar/:id', spamGuard, async (req, res): Promise<void> => {
+router.post('/editCalendar/:id', ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
   const { id } = req.params;
   const { alias, color } = req.body;
   if (!alias || typeof alias !== 'string') {

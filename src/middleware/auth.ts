@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { OAuth2Client } from "google-auth-library";
+import jwt from "jsonwebtoken";
 import { AuthenticatedRequest } from "../types/auth";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -31,12 +32,12 @@ export const ensureAuthenticated = asyncHandler(
       return;
     }
 
-    const idToken = authHeader.substring(7); // Poista "Bearer "
+    const token = authHeader.substring(7); // Poista "Bearer "
 
     try {
-      // Validoi Google ID token
+      // Validoi ensin Google ID token
       const ticket = await client.verifyIdToken({
-        idToken: idToken,
+        idToken: token,
         audience: process.env.GOOGLE_CLIENT_ID,
       });
 
@@ -55,11 +56,35 @@ export const ensureAuthenticated = asyncHandler(
         googleId: payload.sub,
       };
 
-      // console.log(`[Auth] User authenticated: ${payload.email}`);
-      next();
-    } catch (error) {
-      console.error("[Auth] Token validation failed:", error);
-      res.status(401).json({ error: "Invalid token" });
+      // console.log(`[Auth] User authenticated (Google): ${payload.email}`);
+      return next();
+
+    } catch (googleError) {
+      // console.log("[Auth] Not a valid Google ID Token, trying backend JWT...");
+
+      try {
+        // Tarkista backendin oma JWT
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+
+        if (!decoded || !decoded.email) {
+          throw new Error("Invalid backend JWT payload");
+        }
+
+        // Lisää käyttäjätiedot requestiin (ei tallenneta mihinkään)
+        (req as AuthenticatedRequest).user = {
+          email: decoded.email,
+          name: decoded.name,
+          id: decoded.id,
+          role: decoded.role,
+        };
+
+        // console.log(`[Auth] User authenticated (JWT): ${decoded.email}`);
+        return next();
+
+      } catch (jwtError) {
+        console.error("[Auth] Token validation failed:", jwtError);
+        res.status(401).json({ error: "Invalid token" });
+      }
     }
   }
 );
