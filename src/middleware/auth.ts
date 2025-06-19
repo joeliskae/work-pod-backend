@@ -15,6 +15,10 @@ const asyncHandler = (
   };
 };
 
+const normalizeIp = (ip: string): string => {
+  return ip.replace(/^::ffff:/, ''); // poistaa ::ffff: etuliitteen
+};
+
 export const ensureAuthenticated = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     // if (process.env.NODE_ENV === "development") return next();
@@ -31,6 +35,7 @@ export const ensureAuthenticated = asyncHandler(
                          req.connection.remoteAddress || 
                          req.socket.remoteAddress ||
                          (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim();
+
         
         if (!clientIp) {
           res.status(403).json({ error: 'IP-osoitetta ei voitu määrittää' });
@@ -39,8 +44,9 @@ export const ensureAuthenticated = asyncHandler(
 
         // Tarkista löytyykö IP tietokannasta
         const tabletRepository = getRepository(Tablet);
+        const normalizedIp = normalizeIp(clientIp);
         const authorizedTablet = await tabletRepository.findOne({
-          where: { ipAddress: clientIp }
+          where: { ipAddress: normalizedIp }
         });
 
         if (!authorizedTablet) {
