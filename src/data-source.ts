@@ -5,8 +5,8 @@ import { Calendar } from './entities/Calendar';
 import { Tablet } from './entities/TabletEntity';
 import { User } from './entities/User';
 
-import {open} from 'sqlite';
-import sqlite3 from "sqlite3";
+// import {open} from 'sqlite';
+// import sqlite3 from "sqlite3";
 
 
 export const AppDataSource = new DataSource({
@@ -17,48 +17,48 @@ export const AppDataSource = new DataSource({
   logging: false,
 });
 
-async function showDbContents() {
-  const db = await open({
-    filename: "/app/data/usage.sqlite", // Oikea nimi ja polku
-    driver: sqlite3.Database,
-  });
+// async function showDbContents() {
+//   const db = await open({
+//     filename: "/app/data/usage.sqlite", // Oikea nimi ja polku
+//     driver: sqlite3.Database,
+//   });
 
-  const tables = await db.all(
-    "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
-  );
+//   const tables = await db.all(
+//     "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
+//   );
 
-  if (tables.length === 0) {
-    console.log("⚠️  Tietokannassa ei ole käyttäjän tauluja.");
-    return;
-  }
+//   if (tables.length === 0) {
+//     console.log("⚠️  Tietokannassa ei ole käyttäjän tauluja.");
+//     return;
+//   }
 
-  for (const { name } of tables) {
-    console.log(`\n📄 Taulu: \x1b[1m${name}\x1b[0m`);
+//   for (const { name } of tables) {
+//     console.log(`\n📄 Taulu: \x1b[1m${name}\x1b[0m`);
 
-    const rows = await db.all(
-        `SELECT * FROM (
-        SELECT * FROM ${name} ORDER BY id DESC LIMIT 10
-        ) sub ORDER BY id ASC`
-    );
+//     const rows = await db.all(
+//         `SELECT * FROM (
+//         SELECT * FROM ${name} ORDER BY id DESC LIMIT 10
+//         ) sub ORDER BY id ASC`
+//     );
     
-    if (rows.length === 0) {
-      console.log("   (ei rivejä)");
-    } else {
-      console.table(rows);
-    }
-  }
+//     if (rows.length === 0) {
+//       console.log("   (ei rivejä)");
+//     } else {
+//       console.table(rows);
+//     }
+//   }
 
-  await db.close();
-}
+//   await db.close();
+// }
 
 export async function initializeDataSource() {
   if (!AppDataSource.isInitialized) {
     await AppDataSource.initialize();
-    console.log('✅ Using SQLite DB at:', AppDataSource.options.database);
-    console.log('✅ DB initialized');
-    const users = await AppDataSource.getRepository(User).find();
-    console.log('👤 Users:', users);
+    // console.log('✅ Using SQLite DB at:', AppDataSource.options.database);
+    // console.log('✅ DB initialized');
+    // const users = await AppDataSource.getRepository(User).find();
+    // console.log('👤 Users:', users);
 
-    showDbContents();
+    // showDbContents();
   }
 }
