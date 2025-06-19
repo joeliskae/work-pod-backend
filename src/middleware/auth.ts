@@ -45,7 +45,7 @@ export const ensureAuthenticated = asyncHandler(
         // Tarkista löytyykö IP tietokannasta
         const tabletRepository = AppDataSource.getRepository(Tablet);
         const normalizedIp = normalizeIp(clientIp);
-        console.log(`Ip: [${normalizeIp}]`);
+
         const authorizedTablet = await tabletRepository.findOne({
           where: { ipAddress: normalizedIp }
         });
