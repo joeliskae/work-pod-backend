@@ -27,8 +27,7 @@ export const ensureAuthenticated = asyncHandler(
     const isTabletClient = req.headers["x-client-type"] === "tablet";
     if (isTabletClient) {
       try {
-        const clientIP = req.headers['x-forwarded-for'] || req.ip || req.connection.remoteAddress || 'unknown';
-        console.log('Tablet ip: ', clientIP);
+
         // return next();
         // Hae clientin IP-osoite
         const clientIp = req.ip || 
@@ -45,6 +44,7 @@ export const ensureAuthenticated = asyncHandler(
         // Tarkista löytyykö IP tietokannasta
         const tabletRepository = getRepository(Tablet);
         const normalizedIp = normalizeIp(clientIp);
+        console.log(`Ip: [${normalizeIp}]`);
         const authorizedTablet = await tabletRepository.findOne({
           where: { ipAddress: normalizedIp }
         });
