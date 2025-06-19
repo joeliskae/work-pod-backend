@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { AuthenticatedRequest } from "../types/auth";
-import { getRepository } from "typeorm";
+// import { getRepository } from "typeorm";
 import { Tablet } from "../entities/TabletEntity";
+import { AppDataSource } from "../data-source";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -42,7 +43,7 @@ export const ensureAuthenticated = asyncHandler(
         }
 
         // Tarkista löytyykö IP tietokannasta
-        const tabletRepository = getRepository(Tablet);
+        const tabletRepository = AppDataSource.getRepository(Tablet);
         const normalizedIp = normalizeIp(clientIp);
         console.log(`Ip: [${normalizeIp}]`);
         const authorizedTablet = await tabletRepository.findOne({
