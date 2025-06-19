@@ -4,6 +4,8 @@ import { calendar } from "../../services/googleCalendar";
 import { setCachedEvents } from "../../cache/calendarCache";
 import { CalendarEvent } from "../../types/calendar";
 import { logBookingEvent } from "../../utils/logBookingEvents";
+import { ensureAuthenticated } from "../../middleware/auth";
+import { spamGuard } from "../../middleware/spamGuard";
 
 const router = Router();
 
@@ -43,7 +45,7 @@ async function checkAvailability(calendarId: string, start: string, end: string)
 }
 
 // Tabletti endpoint - ei vaadi autentikointia
-router.post("/tablet-book", async (req, res): Promise<void> => {
+router.post("/tablet-book", ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
   const alias = req.body.calendarId as string;
   const calendarMap = await getCalendarMap();
   const calendarId = calendarMap[alias];
