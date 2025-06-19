@@ -54,7 +54,7 @@ export const ensureAuthenticated = asyncHandler(
         return next();
         
       } catch (error) {
-        console.error('Virhe tablet-autentikoinnissa:', error);
+        console.error('Virhe tablet-autentikoinnissa:');
         res.status(500).json({ error: 'Sisäinen palvelinvirhe' });
         return; 
       }
