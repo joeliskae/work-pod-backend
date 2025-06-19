@@ -14,9 +14,9 @@ import toggleACtive from "./v1/toggleActive";
 import tablets from "./v1/tablets";
 import drillDown from "./v1/analyticsDrillDown";
 import adminUsers from "./v1/adminUsers";
-// import busy from "./v1/busy";
+import tabletBook from "./v1/tabletBook";
 
-// TODO: poista cache endpoint ennen tuotantoa!!!
+// import busy from "./v1/busy";
 // import cache from "./v1/debug";
 
 const router = Router();
@@ -37,5 +37,6 @@ router.use(toggleACtive);
 router.use(tablets);
 router.use(drillDown);
 router.use(adminUsers);
+router.use(tabletBook)
 
 export default router;
