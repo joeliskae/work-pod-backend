@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { AuthenticatedRequest } from "../types/auth";
-import { getRepository } from "typeorm";
-import { Tablet } from "../entities/TabletEntity";
+// import { getRepository } from "typeorm";
+// import { Tablet } from "../entities/TabletEntity";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -23,35 +23,38 @@ export const ensureAuthenticated = asyncHandler(
     const isTabletClient = req.headers["x-client-type"] === "tablet";
     if (isTabletClient) {
       try {
-        // Hae clientin IP-osoite
-        const clientIp = req.ip || 
-                         req.connection.remoteAddress || 
-                         req.socket.remoteAddress ||
-                         (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim();
-        
-        if (!clientIp) {
-          res.status(403).json({ error: 'IP-osoitetta ei voitu määrittää' });
-          return; 
-        }
-
-        // Tarkista löytyykö IP tietokannasta
-        const tabletRepository = getRepository(Tablet);
-        const authorizedTablet = await tabletRepository.findOne({
-          where: { ipAddress: clientIp }
-        });
-
-        if (!authorizedTablet) {
-          console.log(`Unauthorized tablet access attempt from IP: ${clientIp}`);
-          res.status(403).json({ 
-            error: 'Tablet ei ole rekisteröity tälle IP-osoitteelle' 
-          });
-          return; 
-        }
-        
-        console.log(`Authorized tablet access: ${authorizedTablet.name} from ${clientIp}`);
-        
-        // Sallittu tablet, jatka suoraan
+        const clientIP = req.headers['x-forwarded-for'] || req.ip || req.connection.remoteAddress || 'unknown';
+        console.log('Tablet ip: ', clientIP);
         return next();
+        // // Hae clientin IP-osoite
+        // const clientIp = req.ip || 
+        //                  req.connection.remoteAddress || 
+        //                  req.socket.remoteAddress ||
+        //                  (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim();
+        
+        // if (!clientIp) {
+        //   res.status(403).json({ error: 'IP-osoitetta ei voitu määrittää' });
+        //   return; 
+        // }
+
+        // // Tarkista löytyykö IP tietokannasta
+        // const tabletRepository = getRepository(Tablet);
+        // const authorizedTablet = await tabletRepository.findOne({
+        //   where: { ipAddress: clientIp }
+        // });
+
+        // if (!authorizedTablet) {
+        //   console.log(`Unauthorized tablet access attempt from IP: ${clientIp}`);
+        //   res.status(403).json({ 
+        //     error: 'Tablet ei ole rekisteröity tälle IP-osoitteelle' 
+        //   });
+        //   return; 
+        // }
+        
+        // console.log(`Authorized tablet access: ${authorizedTablet.name} from ${clientIp}`);
+        
+        // // Sallittu tablet, jatka suoraan
+        // return next();
         
       } catch (error) {
         console.error('Virhe tablet-autentikoinnissa:');
