@@ -24,6 +24,7 @@ export const ensureAuthenticated = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     // if (process.env.NODE_ENV === "development") return next();
 
+    // Tabletti puoli--
     // Tablet check with IP validation
     const isTabletClient = req.headers["x-client-type"] === "tablet";
     if (isTabletClient) {
@@ -70,6 +71,7 @@ export const ensureAuthenticated = asyncHandler(
       }
     }
 
+    // Selain puoli--
     // Tarkista Bearer token
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
