@@ -4,14 +4,21 @@ import { ReservationMetric } from './entities/ReservationMetrics';
 import { Calendar } from './entities/Calendar';
 import { Tablet } from './entities/TabletEntity';
 import { User } from './entities/User';
+import dotenv from 'dotenv';
+
 
 // import {open} from 'sqlite';
 // import sqlite3 from "sqlite3";
 
+dotenv.config();
+
+if (!process.env.DATABASE) {
+  throw new Error("DATABASE ympäristömuuttuja puuttuu");
+}
 
 export const AppDataSource = new DataSource({
   type: 'sqlite',
-  database: './usage.sqlite',
+  database: process.env.DATABASE,
   // database: '/app/data/usage.sqlite',
   entities: [ReservationMetric, Calendar, Tablet, User],
   synchronize: true,   // TODO: käytä vain kehityksessä
