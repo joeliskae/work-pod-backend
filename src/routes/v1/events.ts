@@ -129,7 +129,7 @@ router.get("/events/tablet", spamGuard, async (req, res): Promise<void> => {
     }
 
     const parsed = parseToFullCalendarFormat(events);
-    res.json(parsed);
+    res.json(tablet.calendarId);
   } catch (error) {
     console.error(`[${new Date().toISOString()}] Virhe tabletin tapahtumien haussa: `, error);
     res.status(500).json({ error: "Virhe tapahtumia haettaessa." });
