@@ -183,11 +183,11 @@ export const TabletSettings: React.FC = () => {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="calendarId">Kalenterin ID</Label>
+        <Label htmlFor="calendarId">Kalenterin nimi (alias)</Label>
         <Input
           id="calendarId"
           name="calendarId"
-          placeholder="TÄRKEÄ! Kalenterin Id, esim. C238-1"
+          placeholder="TÄRKEÄ! Kalenterin nimi, esim. C238-1"
           value={formData.calendarId}
           onChange={handleInputChange}
         />

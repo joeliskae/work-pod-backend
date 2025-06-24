@@ -11,7 +11,8 @@ import { User } from './entities/User';
 
 export const AppDataSource = new DataSource({
   type: 'sqlite',
-  database: '/app/data/usage.sqlite',
+  database: './usage.sqlite',
+  // database: '/app/data/usage.sqlite',
   entities: [ReservationMetric, Calendar, Tablet, User],
   synchronize: true,   // TODO: käytä vain kehityksessä
   logging: false,

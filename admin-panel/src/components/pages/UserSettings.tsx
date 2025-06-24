@@ -35,9 +35,12 @@ export const UserSettings: React.FC = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/users/get`, {
-          headers: getAuthHeaders(),
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/users/get`,
+          {
+            headers: getAuthHeaders(),
+          }
+        );
         const data = await response.json();
         setUsers(data);
       } catch (error) {
@@ -51,14 +54,13 @@ export const UserSettings: React.FC = () => {
   }, [authToken]);
 
   const handleInputChange = (e: React.ChangeEvent<any>) => {
-  const { name, value } = e.target;
-  // console.log("Input change:", name, value); // DEBUG
-  setFormData((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
-};
-
+    const { name, value } = e.target;
+    // console.log("Input change:", name, value); // DEBUG
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const resetForm = () => {
     setFormData({
@@ -71,11 +73,14 @@ export const UserSettings: React.FC = () => {
   const handleAddUser = async () => {
     // console.log("formData ennen lähettämistä: ", formData); //TODO: Poista
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/add`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/users/add`,
+        {
+          method: "POST",
+          headers: getAuthHeaders(),
+          body: JSON.stringify(formData),
+        }
+      );
       const newUser = await response.json();
       setUsers((prev) => [...prev, newUser]);
       setShowAddModal(false);
@@ -99,14 +104,19 @@ export const UserSettings: React.FC = () => {
     if (!userToEdit) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/edit/${userToEdit.id}`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/users/edit/${userToEdit.id}`,
+        {
+          method: "PUT",
+          headers: getAuthHeaders(),
+          body: JSON.stringify(formData),
+        }
+      );
       const updatedUser = await response.json();
 
-      setUsers((prev) => prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
+      setUsers((prev) =>
+        prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+      );
       setShowEditModal(false);
       setUserToEdit(null);
       resetForm();
@@ -124,10 +134,13 @@ export const UserSettings: React.FC = () => {
     if (!userToDelete) return;
 
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/users/delete/${userToDelete}`, {
-        method: "DELETE",
-        headers: getAuthHeaders(),
-      });
+      await fetch(
+        `${import.meta.env.VITE_API_URL}/users/delete/${userToDelete}`,
+        {
+          method: "DELETE",
+          headers: getAuthHeaders(),
+        }
+      );
       setUsers((prev) => prev.filter((user) => user.id !== userToDelete));
     } catch (error) {
       console.error("Virhe poistettaessa käyttäjää:", error);
@@ -179,7 +192,9 @@ export const UserSettings: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Käyttäjien hallinta</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Käyttäjien hallinta
+        </h1>
         <Button onClick={() => setShowAddModal(true)}>Lisää käyttäjä</Button>
       </div>
 
@@ -224,6 +239,15 @@ export const UserSettings: React.FC = () => {
               </div>
             </div>
           ))}
+
+          <div className="text-xs text-gray-500 mt-2 leading-relaxed">
+            <strong>Tietosuoja:</strong> Käyttäjien sähköpostiosoitteet
+            tallennetaan ainoastaan järjestelmän käyttöoikeuksien hallintaa
+            varten. Sähköpostiosoitetta käytetään käyttäjätunnuksena
+            kirjautumiseen. Järjestelmä ei tallenna käyttäjän nimeä tai
+            salasanaa. Käyttäjätiedot voidaan poistaa milloin tahansa
+            tämän admin-paneelin kautta. Tietoja ei luovuteta ulkopuolisille.
+          </div>
         </div>
       </Card>
 
