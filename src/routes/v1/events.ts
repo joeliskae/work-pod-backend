@@ -74,7 +74,6 @@ router.get("/events", ensureAuthenticated, spamGuard, async (req, res): Promise<
 // Tablet endpoint /events/tablet
 router.get("/events/tablet", spamGuard, async (req, res): Promise<void> => {
   const tabletRepository = AppDataSource.getRepository(Tablet);
-  const calendarMap = await getCalendarMap();
 
   try {
     const clientIp = req.ip;
@@ -88,50 +87,9 @@ router.get("/events/tablet", spamGuard, async (req, res): Promise<void> => {
       return; 
     }
 
-    const calendarId = calendarMap[tablet.calendarId];
-
-    if (!calendarId) {
-      res.status(404).json({ error: "Kalenteria ei löytynyt tabletin calendarId:llä." });
-      return; 
-    }
-
-    const now = new Date();
-    const defaultTimeMin = now.toISOString();
-    const defaultTimeMax = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
-
-    const timeMin = (req.query.timeMin as string)?.trim() || defaultTimeMin;
-    const timeMax = (req.query.timeMax as string)?.trim() || defaultTimeMax;
-
-    let events: calendar_v3.Schema$Event[] = [];
-
-    // Välimuisti
-    const cached = getCachedEvents(calendarId);
-    if (cached) {
-      const minDate = new Date(timeMin);
-      const maxDate = new Date(timeMax);
-
-      events = cached.events.filter((event) => {
-        const eventStart = new Date(event.start?.dateTime || event.start?.date || "");
-        const eventEnd = new Date(event.end?.dateTime || event.end?.date || "");
-        return eventEnd > minDate && eventStart < maxDate;
-      });
-    } else {
-      const response = await calendar.events.list({
-        calendarId,
-        timeMin,
-        timeMax,
-        singleEvents: true,
-        orderBy: "startTime",
-      });
-
-      events = response.data.items || [];
-      await setCachedEvents(calendarId, events);
-    }
-
-    const parsed = parseToFullCalendarFormat(events);
     res.json(tablet.calendarId);
   } catch (error) {
-    console.error(`[${new Date().toISOString()}] Virhe tabletin tapahtumien haussa: `, error);
+    console.error(`[${new Date().toISOString()}] Virhe tabletin id:tä haettaessa.: `, error);
     res.status(500).json({ error: "Virhe tapahtumia haettaessa." });
   }
 });

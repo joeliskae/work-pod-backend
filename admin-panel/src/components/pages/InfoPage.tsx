@@ -214,7 +214,7 @@ export const InfoPage: React.FC = () => {
           </p>
           <p>
             <strong>Hätätilanne:</strong> Pahimmassa tapauksessa voit ottaa
-            yhteyttä sensuroitu.hehe [at] gmail.com
+            yhteyttä joel.ryynanen [at] gmail.com
           </p>
         </div>
       </Card>

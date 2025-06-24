@@ -240,14 +240,13 @@ export const UserSettings: React.FC = () => {
             </div>
           ))}
 
-          <div className="text-xs text-gray-500 mt-2 leading-relaxed">
-            <strong>Tietosuoja:</strong> Käyttäjien sähköpostiosoitteet
-            tallennetaan ainoastaan järjestelmän käyttöoikeuksien hallintaa
-            varten. Sähköpostiosoitetta käytetään käyttäjätunnuksena
-            kirjautumiseen. Järjestelmä ei tallenna käyttäjän nimeä tai
-            salasanaa. Käyttäjätiedot voidaan poistaa milloin tahansa
-            tämän admin-paneelin kautta. Tietoja ei luovuteta ulkopuolisille.
-          </div>
+        <div className="text-xs text-gray-500 mt-2 leading-relaxed">
+          <strong>Tietosuoja:</strong> Käyttäjien <strong>nimi</strong> ja <strong>sähköpostiosoite</strong> tallennetaan ainoastaan tämän järjestelmän käyttöoikeuksien hallintaa varten. 
+          Sähköpostiosoitetta käytetään käyttäjätunnuksena kirjautumiseen. Nimi näkyy ainoastaan tässä admin-paneelin käyttäjähallinnassa helpottamaan tunnistamista. 
+          Näitä tietoja ei käytetä muuhun tarkoitukseen, eikä niitä luovuteta ulkopuolisille. 
+          Käyttäjätiedot voidaan poistaa milloin tahansa tämän admin-paneelin kautta.
+        </div>
+
         </div>
       </Card>
 
