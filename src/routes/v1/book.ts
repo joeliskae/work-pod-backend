@@ -6,6 +6,7 @@ import { setCachedEvents } from "../../cache/calendarCache";
 import { CalendarEvent } from "../../types/calendar";
 import { AuthenticatedRequest } from "../../types/auth";
 import { logBookingEvent } from "../../utils/logBookingEvents";
+import { spamGuard } from "../../middleware/spamGuard";
 
 const router = Router();
 
@@ -44,7 +45,7 @@ async function checkAvailability(calendarId: string, start: string, end: string)
   }
 }
 
-router.post("/book", ensureAuthenticated, async (req: AuthenticatedRequest, res): Promise<void> => {
+router.post("/book", spamGuard, ensureAuthenticated, async (req: AuthenticatedRequest, res): Promise<void> => {
   const alias = req.body.calendarId as string;
   const calendarMap = await getCalendarMap();
   const calendarId = calendarMap[alias];
