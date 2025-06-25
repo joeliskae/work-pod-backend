@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { AuthenticatedRequest } from "../types/auth";
-// import { getRepository } from "typeorm";
 import { Tablet } from "../entities/TabletEntity";
 import { AppDataSource } from "../data-source";
 

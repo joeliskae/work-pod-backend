@@ -1,10 +1,11 @@
 import { Request, Response, Router } from "express";
-import { AppDataSource } from "../../data-source"; // tai missä ikinä onkaan
+import { AppDataSource } from "../../data-source"; 
 import { ReservationMetric } from "../../entities/ReservationMetrics";
 import { DateTime } from "luxon";
 import { Calendar } from "../../entities/Calendar";
-import { ensureAuthenticated } from "../../middleware/auth";
+// import { ensureAuthenticated } from "../../middleware/auth";
 import { spamGuard } from "../../middleware/spamGuard";
+import { authenticateJWT } from "../../middleware/authenticateJWT";
 
 const router = Router();
 
@@ -25,7 +26,7 @@ const monthNamesFi: Record<string, number> = {
 };
 
 // Spesifinen aikaväli (tunti/viikonpäivä/kuukausi)
-router.get("/analytics-drilldown", ensureAuthenticated, spamGuard, async (req: Request, res: Response) => {
+router.get("/analytics-drilldown", authenticateJWT, spamGuard, async (req: Request, res: Response) => {
   try {
     const { type, value } = req.query;
 
@@ -95,7 +96,7 @@ router.get("/analytics-drilldown", ensureAuthenticated, spamGuard, async (req: R
 });
 
 // Kaikki varaukset kalentereittain
-router.get("/analytics-drilldown-all", ensureAuthenticated, spamGuard, async (req: Request, res: Response) => {
+router.get("/analytics-drilldown-all", authenticateJWT, spamGuard, async (req: Request, res: Response) => {
   try {
     const metricRepo = AppDataSource.getRepository(ReservationMetric);
     const calendarRepo = AppDataSource.getRepository(Calendar); // <-- Muista tuoda tämä

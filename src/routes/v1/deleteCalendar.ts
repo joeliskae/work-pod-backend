@@ -3,12 +3,13 @@ import { AppDataSource } from '../../data-source';
 import { Calendar } from '../../entities/Calendar';
 import { deleteCalendar } from '../../services/googleCalendar';
 import { spamGuard } from '../../middleware/spamGuard';
-import { ensureAuthenticated } from '../../middleware/auth';
+import { authenticateJWT } from '../../middleware/authenticateJWT';
+// import { ensureAuthenticated } from '../../middleware/auth';
 
 const router = Router();
 
 // DELETE /api/v1/calendars/by-alias/:alias
-router.delete('/deleteCalendar/:alias', ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
+router.delete('/deleteCalendar/:alias', authenticateJWT, spamGuard, async (req, res): Promise<void> => {
   const { alias } = req.params;
   const repo = AppDataSource.getRepository(Calendar);
 

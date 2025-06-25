@@ -2,11 +2,12 @@ import { Router } from 'express';
 import { AppDataSource } from '../../data-source';
 import { Calendar } from '../../entities/Calendar';
 import { spamGuard } from '../../middleware/spamGuard';
-import { ensureAuthenticated } from '../../middleware/auth';
+import { authenticateJWT } from '../../middleware/authenticateJWT';
+// import { ensureAuthenticated } from '../../middleware/auth';
 
 const router = Router();
 
-router.patch('/toggleActive/:alias', ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
+router.patch('/toggleActive/:alias', authenticateJWT, spamGuard, async (req, res): Promise<void> => {
   const { alias } = req.params;
   const { isActive } = req.body;
 

@@ -15,6 +15,7 @@ import tablets from "./v1/tablets";
 import drillDown from "./v1/analyticsDrillDown";
 import adminUsers from "./v1/adminUsers";
 import tabletBook from "./v1/tabletBook";
+import auth from "./v1/auth";
 
 // import busy from "./v1/busy";
 // import cache from "./v1/debug";
@@ -37,6 +38,7 @@ router.use(toggleACtive);
 router.use(tablets);
 router.use(drillDown);
 router.use(adminUsers);
-router.use(tabletBook)
+router.use(tabletBook);
+router.use(auth);
 
 export default router;

@@ -1,15 +1,15 @@
 import { GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
+// import { jwtDecode } from 'jwt-decode';
 import { useState } from 'react';
 import { Card } from '../ui/Card';
 import type { User } from '../../types';
 
-interface DecodedToken {
-  email: string;
-  name: string;
-  picture?: string;
-  sub: string;
-}
+// interface DecodedToken {
+//   email: string;
+//   name: string;
+//   picture?: string;
+//   sub: string;
+// }
 
 interface LoginPageProps {
   onLogin: (user: User, token: string) => void;
@@ -31,61 +31,81 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSuccess = async (credentialResponse: any) => {
-    if (!credentialResponse?.credential) {
-      alert('Kirjautuminen epäonnistui - ei saatu tunnistetta');
+  if (!credentialResponse?.credential) {
+    alert('Kirjautuminen epäonnistui - ei saatu tunnistetta');
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const googleIdToken = credentialResponse.credential;
+
+    // 1. Saa backendin oman JWT:n
+    const loginRes = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ idToken: googleIdToken }),
+    });
+
+    if (!loginRes.ok) {
+      const err = await loginRes.json();
+      alert(err?.error || 'Kirjautuminen epäonnistui');
       return;
     }
 
-    setIsLoading(true);
+    const loginData = await loginRes.json();
+    const jwt = loginData.accessToken;
+    const email = loginData.userEmail;
 
-    try {
-      // Dekoodaa Google JWT token
-      const decoded = jwtDecode<DecodedToken>(credentialResponse.credential);
-
-      // Tallenna Google ID token → käytetään jatkossa Authorization-headerissa
-      const googleIdToken = credentialResponse.credential; // <-- UUSI, tärkeä muutos
-
-      // Lähetä sähköpostiosoite backend:lle tarkistettavaksi
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/user/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: decoded.email
-        }),
-      });
-
-      const authResult: AuthResponse = await response.json();
-
-      if (!response.ok || !authResult.success) {
-        alert(authResult.message || 'Sinulla ei ole oikeuksia käyttää tätä järjestelmää');
-        return;
-      }
-
-      if (!authResult.user) {
-        alert('Palvelimen virhe - puuttuvat käyttäjätiedot');
-        return;
-      }
-
-      // Luo käyttäjäobjekti backend:in vastauksesta
-      const user: User = {
-        id: authResult.user.id,
-        name: authResult.user.name,
-        email: authResult.user.email,
-        role: authResult.user.role
-      };
-
-      // Välitä käyttäjä ja GOOGLE ID TOKEN eteenpäin — ei enää bäkkärin jwt:tä
-      onLogin(user, googleIdToken); 
-
-    } catch (error) {
-      console.error('Virhe kirjautumisessa:', error);
-      alert('Kirjautuminen epäonnistui - yhteysongelma palvelimeen');
-    } finally {
-      setIsLoading(false);
+    if (!jwt || !email) {
+      alert('Virhe kirjautumisessa: puuttuu token tai sähköposti');
+      return;
     }
-  };
+
+    // 2. Tarkista oikeudet /user/verify-endpointista (tarvitsee sähköpostin)
+    const verifyRes = await fetch(`${import.meta.env.VITE_API_URL}/user/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwt}`, // <- lähetä token mukana
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    const authResult: AuthResponse = await verifyRes.json();
+
+    if (!verifyRes.ok || !authResult.success) {
+      alert(authResult.message || 'Sinulla ei ole oikeuksia käyttää tätä järjestelmää');
+      return;
+    }
+
+    if (!authResult.user) {
+      alert('Palvelimen virhe - käyttäjätiedot puuttuvat');
+      return;
+    }
+
+    const user: User = {
+      id: authResult.user.id,
+      name: authResult.user.name,
+      email: authResult.user.email,
+      role: authResult.user.role,
+    };
+
+    // 3. Talleta token ja vie eteenpäin
+    localStorage.setItem('accessToken', jwt);
+    onLogin(user, jwt);
+
+  } catch (error) {
+    console.error('Virhe kirjautumisessa:', error);
+    alert('Kirjautuminen epäonnistui - palvelinvirhe tai yhteysongelma');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleError = () => {
     alert('Google-kirjautuminen epäonnistui');

@@ -3,11 +3,12 @@ import { createCalendar } from '../../services/googleCalendar';
 import { AppDataSource } from '../../data-source';
 import { Calendar } from '../../entities/Calendar';
 import { spamGuard } from '../../middleware/spamGuard';
-import { ensureAuthenticated } from '../../middleware/auth';
+// import { ensureAuthenticated } from '../../middleware/auth';
+import { authenticateJWT } from '../../middleware/authenticateJWT';
 
 const router = Router();
 
-router.post('/createCalendar', ensureAuthenticated, spamGuard, async (req, res) => {
+router.post('/createCalendar', authenticateJWT, spamGuard, async (req, res) => {
   const { alias, color = 'blue' } = req.body;
 
   try {

@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { ensureAuthenticated } from "../../middleware/auth";
+// import { ensureAuthenticated } from "../../middleware/auth";
 import { spamGuard } from "../../middleware/spamGuard";
 import { AppDataSource } from "../../data-source"; // Oletan että tämä on TypeORM konfiguraatiosi
 import { ReservationMetric } from "../../entities/ReservationMetrics"; // Polku entiteettiisi
 import { DateTime } from "luxon";
+import { authenticateJWT } from "../../middleware/authenticateJWT";
 
 const router = Router();
 
@@ -13,7 +14,7 @@ interface HourCount {
 }
 
 // GET /api/v1/analytics-hour
-router.get("/analytics-hour", ensureAuthenticated, spamGuard, async (req, res) => {
+router.get("/analytics-hour", authenticateJWT, spamGuard, async (req, res) => {
   try {
     const reservationMetricRepository = AppDataSource.getRepository(ReservationMetric);
     
@@ -47,7 +48,7 @@ router.get("/analytics-hour", ensureAuthenticated, spamGuard, async (req, res) =
 });
 
 // GET /api/v1/analytics-week
-router.get("/analytics-week", ensureAuthenticated, spamGuard, async (req, res) => {
+router.get("/analytics-week", authenticateJWT, spamGuard, async (req, res) => {
   try {
     const reservationMetricRepository = AppDataSource.getRepository(ReservationMetric);
     
@@ -69,7 +70,7 @@ router.get("/analytics-week", ensureAuthenticated, spamGuard, async (req, res) =
 });
 
 // GET /api/v1/analytics-events
-router.get("/analytics-events", ensureAuthenticated, spamGuard, async (req, res) => {
+router.get("/analytics-events", authenticateJWT, spamGuard, async (req, res) => {
   try {
     const reservationMetricRepository = AppDataSource.getRepository(ReservationMetric);
     
@@ -89,7 +90,7 @@ router.get("/analytics-events", ensureAuthenticated, spamGuard, async (req, res)
 });
 
 // GET /api/v1/analytics-yearly
-router.get("/analytics-yearly", ensureAuthenticated, spamGuard, async (req, res) => {
+router.get("/analytics-yearly", authenticateJWT, spamGuard, async (req, res) => {
   try {
     const year = new Date().getFullYear().toString();
     const reservationMetricRepository = AppDataSource.getRepository(ReservationMetric);
