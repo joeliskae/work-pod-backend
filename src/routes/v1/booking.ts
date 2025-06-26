@@ -3,11 +3,12 @@ import { getCalendarMap } from "../../config/calendarMap";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { calendar } from "../../services/googleCalendar";
 import { AuthenticatedRequest } from "../../types/auth";
+import { spamGuard } from "../../middleware/spamGuard";
 
 const router = Router();
 
 // GET /api/v1/booking/:calendarId/:eventId
-router.get("/booking/:calendarId/:eventId", ensureAuthenticated, async (req: AuthenticatedRequest, res): Promise<void> => {
+router.get("/booking/:calendarId/:eventId", spamGuard, ensureAuthenticated, async (req: AuthenticatedRequest, res): Promise<void> => {
   const alias = req.params.calendarId;
   const eventId = req.params.eventId;
   const calendarMap = await getCalendarMap();
