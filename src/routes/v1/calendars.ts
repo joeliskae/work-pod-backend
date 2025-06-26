@@ -4,6 +4,7 @@ import { getCachedEvents } from "../../cache/calendarCache";
 import { calendar_v3 } from "googleapis";
 import { Calendar } from "../../entities/Calendar";
 import { AppDataSource } from "../../data-source";
+import returnErrorResponse from "../../utils/returnErrorResponse";
 
 const router = Router();
 
@@ -40,11 +41,9 @@ router.get("/calendars", ensureAuthenticated, async (req, res) => {
 
     res.json({ calendars });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Virhe kalentereiden hakemisessa" });
+    returnErrorResponse(res, 500, "Error fetching calendars");
   }
 });
-
 
 router.get("/calendars/admin", ensureAuthenticated, async (req, res) => {
   const repo = AppDataSource.getRepository(Calendar);
