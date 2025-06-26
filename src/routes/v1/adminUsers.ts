@@ -2,16 +2,17 @@ import { Router } from "express";
 import { AppDataSource } from "../../data-source";
 import { User } from "../../entities/User";
 import { spamGuard } from "../../middleware/spamGuard";
-import jwt from "jsonwebtoken";
-import { ensureAuthenticated } from "../../middleware/auth";
+// import jwt from "jsonwebtoken";
+// import { ensureAuthenticated } from "../../middleware/auth";
 import returnErrorResponse from "../../utils/returnErrorResponse";
+import { authenticateJWT } from "../../middleware/authenticateJWT";
 
 const router = Router();
 const userRepo = AppDataSource.getRepository(User);
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"; // tuotantoon .env!
+// const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"; // tuotantoon .env!
 
 // GET kaikki käyttäjät
-router.get("/users/get", ensureAuthenticated, spamGuard, async (req, res) => {
+router.get("/users/get", authenticateJWT, spamGuard, async (req, res) => {
   try {
     const users = await userRepo.find();
     res.json(users);
@@ -21,7 +22,7 @@ router.get("/users/get", ensureAuthenticated, spamGuard, async (req, res) => {
 });
 
 // POST lisää uusi käyttäjä
-router.post("/users/add", ensureAuthenticated, spamGuard, async (req, res) => {
+router.post("/users/add", authenticateJWT, spamGuard, async (req, res) => {
   try {
     const { name, email, role } = req.body;
     const newUser = userRepo.create({ name, email, role });
@@ -35,7 +36,7 @@ router.post("/users/add", ensureAuthenticated, spamGuard, async (req, res) => {
 // PUT muokkaa käyttäjää
 router.put(
   "/users/edit/:id",
-  ensureAuthenticated,
+  authenticateJWT,
   spamGuard,
   async (req, res): Promise<void> => {
     try {
@@ -63,7 +64,7 @@ router.put(
 // DELETE poista käyttäjä
 router.delete(
   "/users/delete/:id",
-  ensureAuthenticated,
+  authenticateJWT,
   spamGuard,
   async (req, res): Promise<void> => {
     try {
@@ -81,30 +82,21 @@ router.delete(
 );
 
 // Tarkista oikeudet
-router.post("/user/verify", spamGuard, async (req, res): Promise<void> => {
+router.post("/user/verify", spamGuard, authenticateJWT, async (req, res): Promise<void> => {
   try {
     const { email } = req.body;
+
     if (!email) {
       returnErrorResponse(res, 400, "Email is required for verification");
       return;
     }
 
     const user = await userRepo.findOneBy({ email });
+
     if (!user) {
       returnErrorResponse(res, 403, "Failed to verify user: not found");
       return;
     }
-
-    // Luo JWT-token käyttäjälle
-    const token = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
-      JWT_SECRET,
-      { expiresIn: "2h" } // voimassaoloaika esim. 2 tuntia
-    );
 
     res.json({
       success: true,
@@ -114,7 +106,6 @@ router.post("/user/verify", spamGuard, async (req, res): Promise<void> => {
         email: user.email,
         role: user.role,
       },
-      token,
     });
   } catch (error) {
     returnErrorResponse(res, 500, "Server error during user verification");

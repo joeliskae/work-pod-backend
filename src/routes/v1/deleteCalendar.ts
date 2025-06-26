@@ -3,7 +3,8 @@ import { AppDataSource } from "../../data-source";
 import { Calendar } from "../../entities/Calendar";
 import { deleteCalendar } from "../../services/googleCalendar";
 import { spamGuard } from "../../middleware/spamGuard";
-import { ensureAuthenticated } from "../../middleware/auth";
+import { authenticateJWT } from '../../middleware/authenticateJWT';
+// import { ensureAuthenticated } from "../../middleware/auth";
 import returnErrorResponse from "../../utils/returnErrorResponse";
 
 const router = Router();
@@ -11,7 +12,7 @@ const router = Router();
 // DELETE /api/v1/calendars/by-alias/:alias
 router.delete(
   "/deleteCalendar/:alias",
-  ensureAuthenticated,
+  authenticateJWT,
   spamGuard,
   async (req, res): Promise<void> => {
     const { alias } = req.params;

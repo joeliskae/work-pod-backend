@@ -53,8 +53,7 @@ async function checkAvailability(
   }
 }
 
-<<<<<<< HEAD
-router.post("/book", spamGuard, ensureAuthenticated, async (req: AuthenticatedRequest, res): Promise<void> => {
+router.post("/book", ensureAuthenticated, async (req: AuthenticatedRequest, res): Promise<void> => {
   const alias = req.body.calendarId as string;
   const calendarMap = await getCalendarMap();
   const calendarId = calendarMap[alias];

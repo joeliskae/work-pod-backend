@@ -2,14 +2,15 @@ import { Router } from "express";
 import { AppDataSource } from "../../data-source";
 import { Calendar } from "../../entities/Calendar";
 import { spamGuard } from "../../middleware/spamGuard";
-import { ensureAuthenticated } from "../../middleware/auth";
+import { authenticateJWT } from '../../middleware/authenticateJWT';
+// import { ensureAuthenticated } from "../../middleware/auth";
 import returnErrorResponse from "../../utils/returnErrorResponse";
 
 const router = Router();
 
 router.post(
   "/editCalendar/:id",
-  ensureAuthenticated,
+  authenticateJWT,
   spamGuard,
   async (req, res): Promise<void> => {
     const { id } = req.params;

@@ -1,11 +1,12 @@
 import { Request, Response, Router } from "express";
-import { AppDataSource } from "../../data-source"; // tai missä ikinä onkaan
+import { AppDataSource } from "../../data-source"; 
 import { ReservationMetric } from "../../entities/ReservationMetrics";
 import { DateTime } from "luxon";
 import { Calendar } from "../../entities/Calendar";
-import { ensureAuthenticated } from "../../middleware/auth";
+// import { ensureAuthenticated } from "../../middleware/auth";
 import { spamGuard } from "../../middleware/spamGuard";
 import returnErrorResponse from "../../utils/returnErrorResponse";
+import { authenticateJWT } from "../../middleware/authenticateJWT";
 
 const router = Router();
 
@@ -28,7 +29,7 @@ const monthNamesFi: Record<string, number> = {
 // Spesifinen aikaväli (tunti/viikonpäivä/kuukausi)
 router.get(
   "/analytics-drilldown",
-  ensureAuthenticated,
+  authenticateJWT,
   spamGuard,
   async (req: Request, res: Response) => {
     try {
@@ -102,7 +103,7 @@ router.get(
 // Kaikki varaukset kalentereittain
 router.get(
   "/analytics-drilldown-all",
-  ensureAuthenticated,
+  authenticateJWT,
   spamGuard,
   async (req: Request, res: Response) => {
     try {

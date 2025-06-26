@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { ensureAuthenticated } from "../../middleware/auth";
+// import { ensureAuthenticated } from "../../middleware/auth";
 import { spamGuard } from "../../middleware/spamGuard";
 import { AppDataSource } from "../../data-source"; // Oletan että tämä on TypeORM konfiguraatiosi
 import { ReservationMetric } from "../../entities/ReservationMetrics"; // Polku entiteettiisi
 import { DateTime } from "luxon";
 import returnErrorResponse from "../../utils/returnErrorResponse";
+import { authenticateJWT } from "../../middleware/authenticateJWT";
 
 const router = Router();
 
@@ -16,7 +17,7 @@ interface HourCount {
 // GET /api/v1/analytics-hour
 router.get(
   "/analytics-hour",
-  ensureAuthenticated,
+  authenticateJWT,
   spamGuard,
   async (req, res) => {
     try {
@@ -55,7 +56,7 @@ router.get(
 // GET /api/v1/analytics-week
 router.get(
   "/analytics-week",
-  ensureAuthenticated,
+  authenticateJWT,
   spamGuard,
   async (req, res) => {
     try {
@@ -82,7 +83,7 @@ router.get(
 // GET /api/v1/analytics-events
 router.get(
   "/analytics-events",
-  ensureAuthenticated,
+  authenticateJWT,
   spamGuard,
   async (req, res) => {
     try {
@@ -109,7 +110,7 @@ router.get(
 // GET /api/v1/analytics-yearly
 router.get(
   "/analytics-yearly",
-  ensureAuthenticated,
+  authenticateJWT,
   spamGuard,
   async (req, res) => {
     try {

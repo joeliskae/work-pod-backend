@@ -2,15 +2,16 @@ import { Router } from "express";
 import { AppDataSource } from "../../data-source";
 import { Tablet } from "../../entities/TabletEntity";
 import { spamGuard } from "../../middleware/spamGuard";
-import { ensureAuthenticated } from "../../middleware/auth";
+// import { ensureAuthenticated } from "../../middleware/auth";
 import returnErrorResponse from "../../utils/returnErrorResponse";
+import { authenticateJWT } from "../../middleware/authenticateJWT";
 
 const router = Router();
 const tabletRepo = AppDataSource.getRepository(Tablet);
 
 router.post(
   "/tablets/add",
-  ensureAuthenticated,
+  authenticateJWT,
   spamGuard,
   async (req, res): Promise<void> => {
     try {
@@ -42,7 +43,7 @@ router.post(
 
 router.get(
   "/tablets/get",
-  ensureAuthenticated,
+  authenticateJWT,
   spamGuard,
   async (req, res): Promise<void> => {
     try {
@@ -59,7 +60,7 @@ router.get(
 
 router.delete(
   "/tablets/delete/:id",
-  ensureAuthenticated,
+  authenticateJWT,
   spamGuard,
   async (req, res): Promise<void> => {
     try {
@@ -78,7 +79,7 @@ router.delete(
 
 router.put(
   "/tablets/edit/:id",
-  ensureAuthenticated,
+  authenticateJWT,
   spamGuard,
   async (req, res): Promise<void> => {
     const { id } = req.params;

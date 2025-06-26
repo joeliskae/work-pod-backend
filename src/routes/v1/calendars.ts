@@ -5,6 +5,7 @@ import { calendar_v3 } from "googleapis";
 import { Calendar } from "../../entities/Calendar";
 import { AppDataSource } from "../../data-source";
 import returnErrorResponse from "../../utils/returnErrorResponse";
+import { authenticateJWT } from "../../middleware/authenticateJWT";
 
 const router = Router();
 
@@ -45,7 +46,8 @@ router.get("/calendars", ensureAuthenticated, async (req, res) => {
   }
 });
 
-router.get("/calendars/admin", ensureAuthenticated, async (req, res) => {
+
+router.get("/calendars/admin", authenticateJWT, async (req, res) => {
   const repo = AppDataSource.getRepository(Calendar);
   const calendars = await repo.find();
   res.json({
