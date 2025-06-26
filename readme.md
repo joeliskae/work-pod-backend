@@ -16,8 +16,8 @@ Moderni ja tehokas API Work Pod -varausjärjestelmälle, joka hyödyntää Googl
 
 ## 📋 Vaatimukset
 
-- Node.js (versio 16 tai uudempi)
-- npm tai yarn
+- Node.js (versio 22 tai uudempi)
+- npm
 - Google Cloud Platform -tili (Calendar API:n käyttöön)
 
 ---
