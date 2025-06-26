@@ -6,11 +6,8 @@ import { setCachedEvents } from "../../cache/calendarCache";
 import { CalendarEvent } from "../../types/calendar";
 import { AuthenticatedRequest } from "../../types/auth";
 import { logBookingEvent } from "../../utils/logBookingEvents";
-<<<<<<< HEAD
 import { spamGuard } from "../../middleware/spamGuard";
-=======
 import returnErrorResponse from "../../utils/returnErrorResponse";
->>>>>>> f070a4fa201cee627bb36fba72538630b90bc57c
 
 const router = Router();
 
@@ -53,12 +50,6 @@ async function checkAvailability(
   }
 }
 
-router.post("/book", ensureAuthenticated, async (req: AuthenticatedRequest, res): Promise<void> => {
-  const alias = req.body.calendarId as string;
-  const calendarMap = await getCalendarMap();
-  const calendarId = calendarMap[alias];
-  const { start, end } = req.body;
-=======
 router.post(
   "/book",
   ensureAuthenticated,
@@ -67,7 +58,6 @@ router.post(
     const calendarMap = await getCalendarMap();
     const calendarId = calendarMap[alias];
     const { start, end } = req.body;
->>>>>>> f070a4fa201cee627bb36fba72538630b90bc57c
 
     if (!calendarId || !start || !end) {
       returnErrorResponse(
