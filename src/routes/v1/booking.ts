@@ -38,7 +38,7 @@ router.get("/booking/:calendarId/:eventId", ensureAuthenticated, async (req: Aut
 
     const response = {
       name: event.data.summary || "Tuntematon", // Varauksen tekijän nimi
-      room: alias,
+      calendarId: alias,
       date: start.toISOString().split("T")[0],
       start: start.toTimeString().slice(0, 5),
       end: end.toTimeString().slice(0, 5)
