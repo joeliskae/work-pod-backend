@@ -94,8 +94,6 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
       role: authResult.user.role,
     };
 
-    // 3. Talleta token ja vie eteenpäin
-    localStorage.setItem('accessToken', jwt);
     onLogin(user, jwt);
 
   } catch (error) {

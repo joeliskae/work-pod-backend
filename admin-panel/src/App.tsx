@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import { useAuth } from './hooks/useAuth';
-import { LoginPage } from './components/auth/LoginPage';
-import { Navigation } from './components/navigation/Navigation';
-import { AnalyticsDashboard } from './components/pages/AnalyticsDashboard';
-import { CalendarManagement } from './components/pages/CalendarManagement';
-import { TabletSettings } from './components/pages/TabletSettings';
-import { InfoPage } from './components/pages/InfoPage';
-import { UserSettings } from './components/pages/UserSettings';
+import React, { useState } from "react";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { useAuth } from "./hooks/useAuth";
+import { LoginPage } from "./components/auth/LoginPage";
+import { Navigation } from "./components/navigation/Navigation";
+import { AnalyticsDashboard } from "./components/pages/AnalyticsDashboard";
+import { CalendarManagement } from "./components/pages/CalendarManagement";
+import { TabletSettings } from "./components/pages/TabletSettings";
+import { InfoPage } from "./components/pages/InfoPage";
+import { UserSettings } from "./components/pages/UserSettings";
 
 // Laita tähän Google OAuth Client ID
-const GOOGLE_CLIENT_ID = `${import.meta.env.VITE_GOOGLE_CLIENT_ID}`
+const GOOGLE_CLIENT_ID = `${import.meta.env.VITE_GOOGLE_CLIENT_ID}`;
 
 const AppContent: React.FC = () => {
   const { user, login, logout, isAuthenticated } = useAuth();
-  const [currentPage, setCurrentPage] = useState('analytics');
+  const [currentPage, setCurrentPage] = useState("analytics");
 
   if (!isAuthenticated) {
     return <LoginPage onLogin={login} />;
@@ -22,16 +22,16 @@ const AppContent: React.FC = () => {
 
   const renderCurrentPage = () => {
     switch (currentPage) {
-      case 'analytics':
+      case "analytics":
         return <AnalyticsDashboard />;
-      case 'calendars':
+      case "calendars":
         return <CalendarManagement />;
-      case 'tablets':
+      case "tablets":
         return <TabletSettings />;
-      case 'info':
+      case "info":
         return <InfoPage />;
-      case 'user':
-        return <UserSettings/>;
+      case "user":
+        return <UserSettings />;
       default:
         return <AnalyticsDashboard />;
     }
@@ -39,8 +39,8 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation 
-        currentPage={currentPage} 
+      <Navigation
+        currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         user={user!}
         onLogout={logout}
