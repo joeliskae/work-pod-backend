@@ -661,16 +661,28 @@ Kaikki varaukset kalentereittain ilman suodatusta.
 ```
 work-pod-api/
 ├── src/
-│   ├── controllers/     # API-kontrollerit
-│   ├── models/          # Tietokantamallit
-│   ├── routes/          # API-reitit
-│   ├── middleware/      # Välikerros-funktiot
-│   ├── services/        # Liiketoimintalogiikka
-│   └── utils/           # Apufunktiot
-├── admin-panel/         # React-pohjainen admin-paneeli
-├── tests/               # Testit
-├── docs/                # Dokumentaatio
-└── config/              # Konfiguraatiotiedostot
+│   ├── cache/     
+│   ├── config/ 
+│   ├── entities/
+│   ├── middleware/
+│   ├── routes/
+│   │   └── v1/
+│   ├── scripts/      
+│   ├── services/      
+│   ├── types/
+│   └── utils/           
+│
+└── admin-panel/       
+    └── src/  
+        ├── assets/
+        ├── components/
+        │   ├── auth/
+        │   ├── navigation/
+        │   ├── pages/
+        │   └── ui/
+        ├── hooks/
+        ├── types/
+        └── utils/
 ```
 
 ---

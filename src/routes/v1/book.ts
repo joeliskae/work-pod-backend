@@ -6,7 +6,7 @@ import { setCachedEvents } from "../../cache/calendarCache";
 import { CalendarEvent } from "../../types/calendar";
 import { AuthenticatedRequest } from "../../types/auth";
 import { logBookingEvent } from "../../utils/logBookingEvents";
-import { spamGuard } from "../../middleware/spamGuard";
+// import { spamGuard } from "../../middleware/spamGuard";
 import returnErrorResponse from "../../utils/returnErrorResponse";
 
 const router = Router();
