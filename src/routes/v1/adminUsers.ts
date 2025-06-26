@@ -4,6 +4,7 @@ import { User } from "../../entities/User";
 import { spamGuard } from "../../middleware/spamGuard";
 import jwt from "jsonwebtoken";
 import { ensureAuthenticated } from "../../middleware/auth";
+import returnErrorResponse from "../../utils/returnErrorResponse";
 
 const router = Router();
 const userRepo = AppDataSource.getRepository(User);
@@ -15,7 +16,7 @@ router.get("/users/get", ensureAuthenticated, spamGuard, async (req, res) => {
     const users = await userRepo.find();
     res.json(users);
   } catch (error) {
-    res.status(500).json({ error: "Käyttäjien haku epäonnistui" });
+    returnErrorResponse(res, 500, "Failed to fetch users");
   }
 });
 
@@ -27,61 +28,71 @@ router.post("/users/add", ensureAuthenticated, spamGuard, async (req, res) => {
     const savedUser = await userRepo.save(newUser);
     res.status(201).json(savedUser);
   } catch (error) {
-    res.status(500).json({ error: "Käyttäjän luominen epäonnistui" });
+    returnErrorResponse(res, 500, "Failed to create user");
   }
 });
 
 // PUT muokkaa käyttäjää
-router.put("/users/edit/:id", ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const { name, email, role } = req.body;
+router.put(
+  "/users/edit/:id",
+  ensureAuthenticated,
+  spamGuard,
+  async (req, res): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { name, email, role } = req.body;
 
-    const user = await userRepo.findOneBy({ id });
-    if (!user) {
-        res.status(404).json({ error: "Käyttäjää ei löytynyt" });  
-      return;
-    } 
+      const user = await userRepo.findOneBy({ id });
+      if (!user) {
+        returnErrorResponse(res, 404, "Failed to update user: not found");
+        return;
+      }
 
-    user.name = name ?? user.name;
-    user.email = email ?? user.email;
-    user.role = role;
+      user.name = name ?? user.name;
+      user.email = email ?? user.email;
+      user.role = role;
 
-    const updatedUser = await userRepo.save(user);
-    res.json(updatedUser);
-  } catch (error) {
-    res.status(500).json({ error: "Käyttäjän päivittäminen epäonnistui" });
+      const updatedUser = await userRepo.save(user);
+      res.json(updatedUser);
+    } catch (error) {
+      returnErrorResponse(res, 500, "Failed to update user");
+    }
   }
-});
+);
 
 // DELETE poista käyttäjä
-router.delete("/users/delete/:id", ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const result = await userRepo.delete(id);
-    if (result.affected === 0) {
-        res.status(404).json({ error: "Käyttäjää ei löytynyt" });
-      return;
+router.delete(
+  "/users/delete/:id",
+  ensureAuthenticated,
+  spamGuard,
+  async (req, res): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const result = await userRepo.delete(id);
+      if (result.affected === 0) {
+        returnErrorResponse(res, 404, "Failed to delete user: not found");
+        return;
+      }
+      res.status(204).end();
+    } catch (error) {
+      returnErrorResponse(res, 500, "Failed to delete user");
     }
-    res.status(204).end();
-  } catch (error) {
-    res.status(500).json({ error: "Käyttäjän poistaminen epäonnistui" });
   }
-});
+);
 
 // Tarkista oikeudet
 router.post("/user/verify", spamGuard, async (req, res): Promise<void> => {
   try {
     const { email } = req.body;
     if (!email) {
-      res.status(400).json({ success: false, message: "Sähköposti puuttuu pyynnöstä" });
-      return; 
+      returnErrorResponse(res, 400, "Email is required for verification");
+      return;
     }
 
     const user = await userRepo.findOneBy({ email });
     if (!user) {
-      res.status(403).json({ success: false, message: "Käyttäjää ei löytynyt tai ei oikeuksia" });
-      return; 
+      returnErrorResponse(res, 403, "Failed to verify user: not found");
+      return;
     }
 
     // Luo JWT-token käyttäjälle
@@ -106,8 +117,7 @@ router.post("/user/verify", spamGuard, async (req, res): Promise<void> => {
       token,
     });
   } catch (error) {
-    console.error("Virhe käyttäjän tarkistuksessa:", error);
-    res.status(500).json({ success: false, message: "Palvelinvirhe" });
+    returnErrorResponse(res, 500, "Server error during user verification");
   }
 });
 

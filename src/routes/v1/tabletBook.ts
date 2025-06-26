@@ -6,123 +6,149 @@ import { CalendarEvent } from "../../types/calendar";
 import { logBookingEvent } from "../../utils/logBookingEvents";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { spamGuard } from "../../middleware/spamGuard";
+import returnErrorResponse from "../../utils/returnErrorResponse";
 
 const router = Router();
 
 // Apufunktio joka tarkistaa onko kalenteri varattu
-async function checkAvailability(calendarId: string, start: string, end: string): Promise<{ available: boolean, conflictingEvents?: CalendarEvent[] }> {
+async function checkAvailability(
+  calendarId: string,
+  start: string,
+  end: string
+): Promise<{ available: boolean; conflictingEvents?: CalendarEvent[] }> {
   try {
     const response = await calendar.events.list({
       calendarId,
       timeMin: start,
       timeMax: end,
       singleEvents: true,
-      orderBy: 'startTime',
+      orderBy: "startTime",
     });
 
     const events: CalendarEvent[] = response.data.items || [];
-    
+
     // Filtteröidään pois peruutetut tapahtumat
-    const activeEvents = events.filter(event => event.status !== 'cancelled');
-    
+    const activeEvents = events.filter((event) => event.status !== "cancelled");
+
     if (activeEvents.length > 0) {
       return {
         available: false,
-        conflictingEvents: activeEvents.map(event => ({
+        conflictingEvents: activeEvents.map((event) => ({
           id: event.id,
           summary: event.summary,
           start: event.start || event.start,
           end: event.end || event.end,
-        }))
+        })),
       };
     }
 
     return { available: true };
   } catch (error) {
-    console.error('Availability check failed:', error);
-    throw new Error('Kalenterin saatavuuden tarkistus epäonnistui');
+    console.error("Availability check failed:", error);
+    throw new Error("Kalenterin saatavuuden tarkistus epäonnistui");
   }
 }
 
 // Tabletti endpoint - ei vaadi autentikointia
-router.post("/tablet-book", ensureAuthenticated, spamGuard, async (req, res): Promise<void> => {
-  const alias = req.body.calendarId as string;
-  const calendarMap = await getCalendarMap();
-  const calendarId = calendarMap[alias];
-  const { start, end, name } = req.body;
+router.post(
+  "/tablet-book",
+  ensureAuthenticated,
+  spamGuard,
+  async (req, res): Promise<void> => {
+    const alias = req.body.calendarId as string;
+    const calendarMap = await getCalendarMap();
+    const calendarId = calendarMap[alias];
+    const { start, end, name } = req.body;
 
-  if (!calendarId || !start || !end || !name) {
-    res.status(400).json({ error: "Missing or invalid parameters. Required: calendarId, start, end, name" });
-    return;
-  }
-
-  if (new Date(start) >= new Date(end)) {
-    res.status(400).json({ error: "Start time must be before end time." });
-    return;
-  }
-
-  // Validoi että nimi on järkevä (ei tyhjä, ei liian pitkä)
-  if (typeof name !== 'string' || name.trim().length === 0 || name.trim().length > 100) {
-    res.status(400).json({ error: "Name must be a non-empty string with maximum 100 characters." });
-    return;
-  }
-
-  try {
-    const availability = await checkAvailability(calendarId, start, end);
-
-    if (!availability.available) {
-      res.status(409).json({ 
-        success: false, 
-        error: "Kalenteri on jo varattu kyseiselle ajankohdalle.",
-        conflictingEvents: availability.conflictingEvents
-      });
+    if (!calendarId || !start || !end || !name) {
+      res
+        .status(400)
+        .json({
+          error:
+            "Missing or invalid parameters. Required: calendarId, start, end, name",
+        });
       return;
     }
 
-    const event = {
-      summary: name.trim(),
-      description: "Varaus tehty tabletilta",
-      start: { dateTime: start },
-      end: { dateTime: end },
-    };
+    if (new Date(start) >= new Date(end)) {
+      res.status(400).json({ error: "Start time must be before end time." });
+      return;
+    }
 
-    const response = await calendar.events.insert({
-      calendarId,
-      requestBody: event,
-    });
+    // Validoi että nimi on järkevä (ei tyhjä, ei liian pitkä)
+    if (
+      typeof name !== "string" ||
+      name.trim().length === 0 ||
+      name.trim().length > 100
+    ) {
+      res
+        .status(400)
+        .json({
+          error: "Name must be a non-empty string with maximum 100 characters.",
+        });
+      return;
+    }
 
-    // Kerätään anonyymiä usage dataa
-    logBookingEvent({
-      action: 'created',
-      calendarId,
-      start: new Date(start),
-      end: new Date(end)
-    });
+    try {
+      const availability = await checkAvailability(calendarId, start, end);
 
-    // Haetaan uudet tapahtumat ja päivitetään välimuisti
-    const refreshed = await calendar.events.list({
-      calendarId,
-      timeMin: new Date().toISOString(),
-      timeMax: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(), // seuraavat 30 päivää
-      singleEvents: true,
-      orderBy: 'startTime',
-    });
+      if (!availability.available) {
+        res.status(409).json({
+          success: false,
+          error: "Kalenteri on jo varattu kyseiselle ajankohdalle.",
+          conflictingEvents: availability.conflictingEvents,
+        });
+        return;
+      }
 
-    const events = (refreshed.data.items || []).filter(e => e.status !== "cancelled");
-    setCachedEvents(calendarId, events);
+      const event = {
+        summary: name.trim(),
+        description: "Varaus tehty tabletilta",
+        start: { dateTime: start },
+        end: { dateTime: end },
+      };
 
-    res.json({ success: true, link: response.data.htmlLink });
-  } catch (error) {
-    console.error(`[${new Date().toISOString()}] Tabletti varaus epäonnistui: `, error);
+      const response = await calendar.events.insert({
+        calendarId,
+        requestBody: event,
+      });
 
-    if (error instanceof Error) {
-      console.error(`[${new Date().toISOString()}] Virhe: `, error.message);
-      res.status(500).json({ error: error.message });
-    } else {
-      console.error(`[${new Date().toISOString()}] Tuntematon virhe: `, error);
-      res.status(500).json({ error: "Tuntematon virhe" });
+      // Kerätään anonyymiä usage dataa
+      logBookingEvent({
+        action: "created",
+        calendarId,
+        start: new Date(start),
+        end: new Date(end),
+      });
+
+      // Haetaan uudet tapahtumat ja päivitetään välimuisti
+      const refreshed = await calendar.events.list({
+        calendarId,
+        timeMin: new Date().toISOString(),
+        timeMax: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(), // seuraavat 30 päivää
+        singleEvents: true,
+        orderBy: "startTime",
+      });
+
+      const events = (refreshed.data.items || []).filter(
+        (e) => e.status !== "cancelled"
+      );
+      setCachedEvents(calendarId, events);
+
+      res.json({ success: true, link: response.data.htmlLink });
+    } catch (error) {
+      console.error(
+        `[${new Date().toISOString()}] Tabletti varaus epäonnistui: `,
+        error
+      );
+
+      if (error instanceof Error) {
+        returnErrorResponse(res, 500, error.message);
+      } else {
+        returnErrorResponse(res, 500, "Unknown error occurred while booking");
+      }
     }
   }
-});
+);
 
 export default router;
