@@ -96,14 +96,13 @@ router.post("/user/verify", spamGuard, authenticateJWT, async (req, res): Promis
 
     if (userCount === 0) {
       // Eka kirjautuja → admin
-      console.log("0 käyttäjää, tehdään");
       const newAdmin = userRepo.create({
         email,
-        name: undefined, // tai haetaan Google-tokenista jos sulla on se saatavilla
+        name: "[FIRST LOGIN] - CHANGE ME", // tai haetaan Google-tokenista jos sulla on se saatavilla
         role: "admin",
       });
+      console.log("Saving new admin.....");
       await userRepo.save(newAdmin);
-      console.log("Saved new admin");
       res.json({
         success: true,
         user: {
@@ -113,7 +112,6 @@ router.post("/user/verify", spamGuard, authenticateJWT, async (req, res): Promis
           role: newAdmin.role,
         },
       });
-      console.table(newAdmin);
       return;
     }
 
