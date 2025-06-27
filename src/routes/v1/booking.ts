@@ -4,6 +4,7 @@ import { ensureAuthenticated } from "../../middleware/auth";
 import { calendar } from "../../services/googleCalendar";
 import { AuthenticatedRequest } from "../../types/auth";
 import returnErrorResponse from "../../utils/returnErrorResponse";
+import { wrapSuccessResponse } from "../../utils/wrapSuccessResponse";
 
 const router = Router();
 
@@ -52,7 +53,7 @@ router.get(
         end: end.toTimeString().slice(0, 5),
       };
 
-      res.json(response);
+      res.json(wrapSuccessResponse(response));
     } catch (error) {
       console.error(
         `[${new Date().toISOString()}] Virhe varauksen haussa: `,

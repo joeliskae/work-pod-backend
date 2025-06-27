@@ -172,7 +172,6 @@ Hakee kalenterin tapahtumat annetulta aikaväliltä FullCalendar.js -formaatissa
     "title": "Matti Meikäläinen",
     "start": "2025-06-26T13:00:00+03:00",
     "end": "2025-06-26T14:00:00+03:00",
-    "description": "user@mail.com"
   }
 ]
 ```
@@ -207,7 +206,6 @@ Palauttaa kirjautuneen käyttäjän varaukset seuraavan 30 päivän ajalta.
     "title": "Matti Meikäläinen",
     "start": "2025-06-26T13:00:00+03:00",
     "end": "2025-06-26T14:00:00+03:00",
-    "description": "user@mail.com"
   }
 ]
 ```

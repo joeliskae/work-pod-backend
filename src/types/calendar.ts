@@ -16,5 +16,5 @@ export type UserEvent = {
   title: string;
   start?: string | null;
   end?: string | null;
-  description: string;
+  // description: string;
 };

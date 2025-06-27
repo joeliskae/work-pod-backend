@@ -7,6 +7,7 @@ import { logBookingEvent } from "../../utils/logBookingEvents";
 import { ensureAuthenticated } from "../../middleware/auth";
 import { spamGuard } from "../../middleware/spamGuard";
 import returnErrorResponse from "../../utils/returnErrorResponse";
+import { wrapSuccessResponse } from "../../utils/wrapSuccessResponse";
 
 const router = Router();
 
@@ -135,7 +136,7 @@ router.post(
       );
       setCachedEvents(calendarId, events);
 
-      res.json({ success: true, link: response.data.htmlLink });
+      res.json( wrapSuccessResponse(response.data.htmlLink) );
     } catch (error) {
       console.error(
         `[${new Date().toISOString()}] Tabletti varaus epäonnistui: `,

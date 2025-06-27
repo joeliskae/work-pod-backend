@@ -9,6 +9,7 @@ import { spamGuard } from "../../middleware/spamGuard";
 import { AppDataSource } from "../../data-source";
 import { Tablet } from "../../entities/TabletEntity";
 import returnErrorResponse from "../../utils/returnErrorResponse";
+import { wrapSuccessResponse } from "../../utils/wrapSuccessResponse";
 
 const router = Router();
 
@@ -80,7 +81,7 @@ router.get(
       }
 
       const parsed = parseToFullCalendarFormat(events);
-      res.json(parsed);
+      res.json(wrapSuccessResponse(parsed));
     } catch (error: unknown) {
       console.error(
         `[${new Date().toISOString()}] Virhe haettaessa kalenteritapahtumia: `,

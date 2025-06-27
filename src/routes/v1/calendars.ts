@@ -6,6 +6,7 @@ import { Calendar } from "../../entities/Calendar";
 import { AppDataSource } from "../../data-source";
 import returnErrorResponse from "../../utils/returnErrorResponse";
 import { authenticateJWT } from "../../middleware/authenticateJWT";
+import { wrapSuccessResponse } from "../../utils/wrapSuccessResponse";
 
 const router = Router();
 
@@ -18,7 +19,7 @@ function isEventOngoingNow(event: calendar_v3.Schema$Event): boolean {
 }
 
 // GET /api/v1/calendars
-router.get("/calendars", ensureAuthenticated, async (req, res) => {
+router.get("/calendars", ensureAuthenticated,  async (req, res) => {
   try {
     const calendarsInDb = await AppDataSource.getRepository(Calendar).find({
       where: { isActive: true },
@@ -40,7 +41,7 @@ router.get("/calendars", ensureAuthenticated, async (req, res) => {
       };
     });
 
-    res.json({ calendars });
+    res.json(wrapSuccessResponse(calendars));
   } catch (error) {
     returnErrorResponse(res, 500, "Error fetching calendars");
   }

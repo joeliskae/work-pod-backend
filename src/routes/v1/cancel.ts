@@ -6,6 +6,7 @@ import { AuthenticatedRequest } from "../../types/auth";
 import { setCachedEvents } from "../../cache/calendarCache";
 import { logBookingEvent } from "../../utils/logBookingEvents";
 import returnErrorResponse from "../../utils/returnErrorResponse";
+import { wrapSuccessResponse } from "../../utils/wrapSuccessResponse";
 
 const router = Router();
 
@@ -73,7 +74,7 @@ router.delete(
       );
       setCachedEvents(calendarId, events);
 
-      res.json({ success: true, message: "Booking cancelled successfully" });
+      res.json(wrapSuccessResponse(null ,"Booking cancelled successfully"));
     } catch (error: unknown) {
       console.error(
         `[${new Date().toISOString()}] Varauksen peruutus epäonnistui:`,

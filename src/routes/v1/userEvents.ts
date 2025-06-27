@@ -6,6 +6,7 @@ import { getCachedEvents, setCachedEvents } from "../../cache/calendarCache";
 import { AuthenticatedRequest } from "../../types/auth";
 import { UserEvent } from "../../types/calendar";
 import returnErrorResponse from "../../utils/returnErrorResponse";
+import { wrapSuccessResponse } from "../../utils/wrapSuccessResponse";
 
 const router = Router();
 
@@ -66,13 +67,13 @@ router.get(
             title: event.summary || "Varattu",
             start: event.start?.dateTime || event.start?.date,
             end: event.end?.dateTime || event.end?.date,
-            description: event.description || "",
+            // description: event.description || "",
           }));
 
         results.push(...matching);
       }
 
-      res.json(results);
+      res.json(wrapSuccessResponse(results));
     } catch (error: unknown) {
       console.error(
         `[${new Date().toISOString()}] Virhe haettaessa käyttäjän varauksia: `,

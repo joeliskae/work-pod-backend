@@ -1,4 +1,4 @@
-export function wrapSuccessResponse<T>(data: T, message?: string) {
+export function wrapSuccessResponse<T>(data: T, message?: T) {
   return {
     success: true,
     data,
