@@ -30,7 +30,11 @@ Moderni ja tehokas API Work Pod -varausjärjestelmälle, joka hyödyntää Googl
 npm install
 ```
 
-### 2. Admin-panelin käynnistys
+### 2. Admin-panelin asennus
+
+Paneeli tulee buildata ja se löytyy senjälkeen expressistä osoitteesta
+
+`localhost:3000/admin`
 
 ```bash
 npm run install:admin
@@ -69,9 +73,11 @@ Ennen ensimmäistä käynnistystä aja:
 
 ```bash
 npm run init-db
+npm run seed:calendars
 ```
 
 Tämä luo SQLite-tietokannan projektin juureen.
+Seed:calendars vie olemassa olevat 5 kalenterin osoitetta tietokantaan.
 
 ---
 
