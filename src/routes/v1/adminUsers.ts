@@ -81,7 +81,7 @@ router.delete(
   }
 );
 
-// Tarkista oikeudet
+// POST Tarkista oikeudet
 router.post("/user/verify", spamGuard, authenticateJWT, async (req, res): Promise<void> => {
   try {
     const { email } = req.body;
@@ -91,6 +91,33 @@ router.post("/user/verify", spamGuard, authenticateJWT, async (req, res): Promis
       return;
     }
 
+    // Tarkista onko tietokannassa yhtään käyttäjää
+    const userCount = await userRepo.count();
+
+    if (userCount === 0) {
+      // Eka kirjautuja → admin
+      console.log("0 käyttäjää, tehdään");
+      const newAdmin = userRepo.create({
+        email,
+        name: undefined, // tai haetaan Google-tokenista jos sulla on se saatavilla
+        role: "admin",
+      });
+      await userRepo.save(newAdmin);
+      console.log("Saved new admin");
+      res.json({
+        success: true,
+        user: {
+          id: newAdmin.id,
+          name: newAdmin.name,
+          email: newAdmin.email,
+          role: newAdmin.role,
+        },
+      });
+      console.table(newAdmin);
+      return;
+    }
+
+    // Normaalit käyttäjät
     const user = await userRepo.findOneBy({ email });
 
     if (!user) {
@@ -111,5 +138,6 @@ router.post("/user/verify", spamGuard, authenticateJWT, async (req, res): Promis
     returnErrorResponse(res, 500, "Server error during user verification");
   }
 });
+
 
 export default router;
