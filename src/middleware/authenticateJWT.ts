@@ -3,14 +3,34 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
+/**
+ * Laajennettu Expressin Request-tyyppi, joka sisältää
+ * autentikoidun käyttäjän tiedot.
+ */
 export interface AuthenticatedRequest extends Request {
+  /**
+   * Autentikoidun käyttäjän tiedot, jotka on purettu JWT:stä.
+   */
   user?: {
+    /** Käyttäjän sähköpostiosoite */
     email: string;
+    /** Käyttäjän koko nimi (valinnainen) */
     name?: string;
+    /** Google-käyttäjän uniikki tunniste (valinnainen) */
     googleId?: string;
   };
 }
 
+/**
+ * Express middleware, joka tarkistaa JWT:n Authorization-headerista,
+ * validoi sen ja lisää dekoodatut käyttäjätiedot requestiin.
+ * 
+ * Jos token puuttuu tai on virheellinen, palautetaan 401 Unauthorized.
+ *
+ * @param {Request} req Expressin Request-objekti
+ * @param {Response} res Expressin Response-objekti
+ * @param {NextFunction} next Expressin next-funktio middleware-ketjussa
+ */
 export const authenticateJWT = (
   req: Request,
   res: Response,

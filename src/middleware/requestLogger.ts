@@ -22,7 +22,15 @@ function shortenAndPad(str: string, maxLen: number): string {
   return str.padEnd(maxLen, " ");
 }
 
-
+/**
+ * Express middleware, joka kirjaa HTTP-pyynnön tiedot konsoliin.
+ * Logissa näkyvät käyttäjän sähköposti, HTTP-metodi, reitin polku,
+ * vastauskoodi, käsittelyaika ja mahdolliset lisätunnisteet (cache-hit, spam-esto).
+ *
+ * @param {AuthenticatedRequest} req - Express request, johon on mahdollisesti liitetty käyttäjätiedot
+ * @param {Response} res - Express response
+ * @param {NextFunction} next - Seuraava middleware-funktio
+ */
 export function requestLogger(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   const start = Date.now();
 

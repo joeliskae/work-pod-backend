@@ -3,7 +3,6 @@ import { calendar } from "./googleCalendar";
 import { getCalendarMap } from "../config/calendarMap";
 import { setCachedEvents } from "../cache/calendarCache";
 
-//TODO: Tee päivittäin imuroitava cache
 export async function warmUpCache() {
   const calendarMap = await getCalendarMap();
   const now = new Date();

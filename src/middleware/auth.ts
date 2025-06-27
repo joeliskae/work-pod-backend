@@ -6,7 +6,13 @@ import { AppDataSource } from "../data-source";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// Async middleware wrapper
+/**
+ * Ympäröi asynkronisen Express middleware -funktion
+ * ja ohjaa mahdolliset poikkeukset `next`-käsittelijälle.
+ *
+ * @param {function(Request, Response, NextFunction): Promise<void>} fn Asynkroninen middleware-funktio
+ * @returns {function(Request, Response, NextFunction): void} Syntkroninen middleware, joka käsittelee virheet
+ */
 const asyncHandler = (
   fn: (req: Request, res: Response, next: NextFunction) => Promise<void>
 ) => {
@@ -15,34 +21,45 @@ const asyncHandler = (
   };
 };
 
+/**
+ * Poistaa IPv6-muodossa mahdollisesti olevan "::ffff:"-etuliitteen
+ * ja palauttaa IP-osoitteen selkeässä IPv4-muodossa.
+ *
+ * @param {string} ip IP-osoite mahdollisesti etuliitteellä
+ * @returns {string} Normalisoitu IP-osoite ilman "::ffff:"-etuliitettä
+ */
 const normalizeIp = (ip: string): string => {
   return ip.replace(/^::ffff:/, ''); // poistaa ::ffff: etuliitteen
 };
 
+/**
+ * Express middleware, joka varmistaa käyttäjän autentikaation.
+ * 
+ * - Tablet-laitteet autentikoidaan IP-osoitteen perusteella.
+ * - Selainkutsut autentikoidaan Google OAuth2 Bearer tokenilla.
+ *
+ * Mikäli autentikointi epäonnistuu, palautetaan virhevastaukset.
+ *
+ * @param {Request} req Expressin Request-objekti
+ * @param {Response} res Expressin Response-objekti
+ * @param {NextFunction} next Expressin next-funktio middleware-ketjussa
+ */
 export const ensureAuthenticated = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    // if (process.env.NODE_ENV === "development") return next();
-
-    // Tabletti puoli--
-    // Tablet check with IP validation
+    // Tablet-puolen autentikointi IP-osoitteella
     const isTabletClient = req.headers["x-client-type"] === "tablet";
     if (isTabletClient) {
       try {
-
-        // return next();
-        // Hae clientin IP-osoite
         const clientIp = req.ip || 
                          req.connection.remoteAddress || 
                          req.socket.remoteAddress ||
                          (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim();
 
-        
         if (!clientIp) {
           res.status(403).json({ error: 'IP-osoitetta ei voitu määrittää' });
           return; 
         }
 
-        // Tarkista löytyykö IP tietokannasta
         const tabletRepository = AppDataSource.getRepository(Tablet);
         const normalizedIp = normalizeIp(clientIp);
 
@@ -59,19 +76,16 @@ export const ensureAuthenticated = asyncHandler(
         }
         
         console.log(`Authorized tablet access: ${authorizedTablet.name} from ${clientIp}`);
-        
-        // Sallittu tablet, jatka suoraan
         return next();
         
       } catch (error) {
-        console.error('Virhe tablet-autentikoinnissa:');
+        console.error('Virhe tablet-autentikoinnissa:', error);
         res.status(500).json({ error: 'Sisäinen palvelinvirhe' });
         return; 
       }
     }
 
-    // Selain puoli--
-    // Tarkista Bearer token
+    // Selainpuolen autentikointi Google OAuth Bearer tokenilla
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       console.log("[Auth] No Bearer token provided");
@@ -82,7 +96,6 @@ export const ensureAuthenticated = asyncHandler(
     const token = authHeader.substring(7); // Poista "Bearer "
 
     try {
-      // Validoi Google ID token
       const ticket = await client.verifyIdToken({
         idToken: token,
         audience: process.env.GOOGLE_CLIENT_ID,
@@ -95,14 +108,13 @@ export const ensureAuthenticated = asyncHandler(
         return;
       }
 
-      // Lisää käyttäjätiedot requestiin
+      // Lisää käyttäjätiedot request-objektiin
       (req as AuthenticatedRequest).user = {
         email: payload.email,
         name: payload.name,
         googleId: payload.sub,
       };
 
-      // console.log(`[Auth] User authenticated: ${payload.email}`);
       return next();
 
     } catch (error) {

@@ -113,6 +113,8 @@ Admin-paneeli on käytettävissä osoitteessa `http://localhost:3000/admin`
 
 **Kirjautuminen:** Google-tunnuksilla (LAB/LUT). Vain hyväksytyt käyttäjät voivat kirjautua.
 
+Tietokannan ollessa tyhjä, ensimmäinen kirjautuminen lisätään tietokantaan `admin` käyttäjänä.
+
 ---
 
 ## 🗓️ Kalenteri ID:t
