@@ -119,6 +119,8 @@ Admin-paneeli on käytettävissä osoitteessa `http://localhost:3000/admin`
 
 Kalenteri ID:nä toimii podien nimet. Endpoint `/calendars` palauttaa nykyiset käytössä olevat kalenterit.
 
+Kalenterit saattavat muuttua, eikä tätä listaa ylläpidetä.
+
 **Nykyiset kalenterit:**
 - C238-1
 - C238-2  
@@ -130,7 +132,29 @@ Kalenteri ID:nä toimii podien nimet. Endpoint `/calendars` palauttaa nykyiset k
 
 ## 📚 API-dokumentaatio
 
-API kuuntelee osoitteessa `http://localhost:3000/api/v1`
+API kuuntelee oletuksena osoitteessa `http://localhost:3000/api/v1`
+
+
+### `Kaikki apin palautukset on kääritty nyt succesWrapperin ympärille!!`
+
+Palautusten vastaus pysyy samana, mutta se on nyt data kentässä:
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+    // jonkun endpoitin palautus tähän. esim events alla
+    "id": "iqf1ltk7072iabi2j0tg9me9q8",
+    "title": "Matti Meikäläinen",
+    "start": "2025-06-26T13:00:00+03:00",
+    "end": "2025-06-26T14:00:00+03:00",
+    }
+  ],
+  //90% palautuksista ei käytä messagea.
+  "message": "Tämä on harvoin käytössä, mutta joskus käytetään."
+}
+```
 
 ### 🎯 Varausten hallinta
 
@@ -151,7 +175,7 @@ Luo varaus valittuun kalenteriin. Tarkistaa ettei kalenterissa ole jo varausta.
 ```json
 {
   "success": true,
-  "link": "https://calendar.google.com/event?eid=..."
+  "data": "https://calendar.google.com/event?eid=..."
 }
 ```
 
@@ -262,7 +286,7 @@ Tablet-käyttöliittymälle oma varausendpoint.
 ```json
 {
   "success": true,
-  "link": "https://www.google.com/calendar/event?eid=..."
+  "data": "https://www.google.com/calendar/event?eid=..."
 }
 ```
 
