@@ -27,9 +27,9 @@ const allowedOrigins = [
   "http://localhost:80",
   "http://localhost:5173", // esim. frontend dev
   "http://localhost:3000", // esim. admin-panel
-  "http://172.30.132.212:80", // uus ip
+  "http://172.30.132.212:80", // uus ipin
   "http://172.30.132.212:3000",
-  "https://2a2ac9ca45e1.ngrok-free.app/",
+  "https://2a2ac9ca45e1.ngrok-free.app",
 ];
 
 async function startServer() {
