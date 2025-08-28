@@ -760,14 +760,15 @@ Seuraa alla olevia ohjeita:
    - Selain lataa tiedoston, esimerkiksi `calendar-backend-123abc.json`  
    - Tallenna tämä tiedosto palvelimelle sovelluksesi käyttöön ja nimeä se tarvittaessa `service-account.json`.
 
-6. **Anna käyttöoikeudet kalentereihin**  
+6. **Anna käyttöoikeudet kalentereihin**
+   Jos käytössä on jo valmiiksi luotuja kalentereita seuraa ohjeita alta, muutoin admin-paneelista luodut kalenterit ovat service accountin omaisuutta eivätkä tarvitse erillisiä oikeuksia.
    - Avaa Google Calendar selaimessa  
    - Valitse kalenteri, jota sovellus käyttää  
    - Avaa **Settings & Sharing**  
    - Lisää palvelutilin sähköpostiosoite (löytyy avaimesta, esim. `calendar-backend@project-id.iam.gserviceaccount.com`)  
    - Anna tarvittavat oikeudet (esim. *Make changes to events*)
 
-7. **Käytä avainta backendissä**  
+8. **Käytä avainta backendissä**  
    - Tallenna service-account.json projektin juureen, samaan lokaatioon kuin .env tiedosto.
 
 ### 2. API-avainten konfigurointi
