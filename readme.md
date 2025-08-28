@@ -30,17 +30,6 @@ Moderni ja tehokas API Work Pod -varausjärjestelmälle, joka hyödyntää Googl
 npm install
 ```
 
-### 2. Admin-panelin asennus
-
-Paneeli tulee buildata ja se löytyy senjälkeen expressistä osoitteesta
-
-`localhost:3000/admin`
-
-```bash
-npm run install:admin
-npm run build:admin
-```
-
 ### 3. Ympäristömuuttujien määrittely
 
 Luo `.env` -tiedosto projektin juureen:
@@ -67,9 +56,22 @@ VITE_API_URL="http://localhost:3000/api/v1"
 VITE_GOOGLE_CLIENT_ID=LAITA_TÄHÄN_OMA (Saa olla sama kuin ylemmässä .env)
 ```
 
+### 2. Admin-panelin asennus
+
+Paneeli tulee buildata ja se löytyy senjälkeen expressistä osoitteesta
+
+`localhost:3000/admin`
+
+```bash
+npm run install:admin
+npm run build:admin
+```
+
+
 ### 4. Tietokannan alustus
 
-Ennen ensimmäistä käynnistystä aja:
+**ei tarpeellista enään**
+Jos haluat luoda tietokannan ja alustaa sen ennen ensimmäistä käynnistystä voit ajaa:
 
 ```bash
 npm run init-db
@@ -102,12 +104,6 @@ npm run show-db
 Palvelin käynnistyy osoitteeseen `http://localhost:3000`
 
 ### Admin-paneeli
-
-Jos backend pyörii lokaalisti, buildaa ensin admin-paneeli:
-
-```bash
-npm run build:admin
-```
 
 Admin-paneeli on käytettävissä osoitteessa `http://localhost:3000/admin`
 
