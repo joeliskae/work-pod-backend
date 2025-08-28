@@ -132,6 +132,7 @@ Kalenterit saattavat muuttua, eikä tätä listaa ylläpidetä.
 
 API kuuntelee oletuksena osoitteessa `http://localhost:3000/api/v1`
 
+> **HUOM!** Jos haluat kokeilla apin toimintaa ilman sen vaativaa bearer tokenia, poista endpointista 'ensureAuthenticated' middleware käytöstä.
 
 ### `Kaikki apin palautukset on kääritty nyt succesWrapperin ympärille!!`
 
