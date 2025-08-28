@@ -727,6 +727,49 @@ work-pod-api/
 4. Luo OAuth 2.0 -tunnistetiedot
 5. Lisää `http://localhost:3000/auth/google/callback` sallittuihin callback-URL:eihin
 
+## Google Service Account -tunnistetiedoston luominen (`service-account.json`)
+
+Jotta backend-sovellus voi käyttää Google Calendar API:a, tarvitaan palvelutili
+(*Service Account*) ja siihen liittyvä avaintiedosto (`service-account.json`).
+
+Seuraa alla olevia ohjeita:
+
+1. **Avaa Google Cloud Console**  
+   Mene osoitteeseen [https://console.cloud.google.com/](https://console.cloud.google.com/).
+
+2. **Valitse projekti**  
+   Ylävalikosta valitse se projekti, johon haluat luoda palvelutilin.  
+   Jos projektia ei vielä ole, luo uusi projekti.
+
+3. **Ota Google Calendar API käyttöön**  
+   - Siirry kohtaan **APIs & Services → Library**  
+   - Hae "Google Calendar API"  
+   - Klikkaa **Enable**
+
+4. **Luo palvelutili (Service Account)**  
+   - Mene **APIs & Services → Credentials**  
+   - Valitse **Create Credentials → Service Account**  
+   - Anna tilille nimi (esim. *calendar-backend*)  
+   - Klikkaa **Done**
+
+5. **Luo avain (JSON)**  
+   - Avaa luotu palvelutili listasta  
+   - Siirry välilehdelle **Keys**  
+   - Klikkaa **Add Key → Create new key**  
+   - Valitse **JSON** ja paina **Create**  
+   - Selain lataa tiedoston, esimerkiksi `calendar-backend-123abc.json`  
+   - Tallenna tämä tiedosto palvelimelle sovelluksesi käyttöön ja nimeä se tarvittaessa `service-account.json`.
+
+6. **Anna käyttöoikeudet kalentereihin**  
+   - Avaa Google Calendar selaimessa  
+   - Valitse kalenteri, jota sovellus käyttää  
+   - Avaa **Settings & Sharing**  
+   - Lisää palvelutilin sähköpostiosoite (löytyy avaimesta, esim. `calendar-backend@project-id.iam.gserviceaccount.com`)  
+   - Anna tarvittavat oikeudet (esim. *Make changes to events*)
+
+7. **Käytä avainta backendissä**  
+   - Tallenna service-account.json projektin juureen, samaan lokaatioon kuin .env tiedosto.
+
 ### 2. API-avainten konfigurointi
 
 Kopioi Client ID ja Client Secret `.env` -tiedostoon:
@@ -736,49 +779,6 @@ GOOGLE_CLIENT_ID=your_client_id_here.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your_client_secret_here
 ```
 
----
-
-## 🧪 Testaus
-
-```bash
-# Suorita kaikki testit
-npm test
-
-# Suorita testit watch-tilassa
-npm run test:watch
-
-# Generoi testikattavuusraportti
-npm run test:coverage
-```
-
----
-
-## 🚀 Tuotantoon vienti
-
-### 1. Rakenna sovellus
-
-```bash
-npm run build
-```
-
-### 2. Käynnistä tuotantotilassa
-
-```bash
-npm start
-```
-
-### 3. Ympäristömuuttujat tuotannossa
-
-Varmista, että seuraavat ympäristömuuttujat on määritetty:
-
-- `NODE_ENV=production`
-- `DATABASE_URL` (tuotantotietokanta)
-- `GOOGLE_CLIENT_ID`
-- `GOOGLE_CLIENT_SECRET`
-- `JWT_SECRET`
-- `SESSION_SECRET`
-
----
 
 ## 🤝 Kehittäminen
 
