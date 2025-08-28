@@ -30,7 +30,7 @@ Moderni ja tehokas API Work Pod -varausjärjestelmälle, joka hyödyntää Googl
 npm install
 ```
 
-### 3. Ympäristömuuttujien määrittely
+### 2. Ympäristömuuttujien määrittely
 
 Luo `.env` -tiedosto projektin juureen:
 
@@ -56,7 +56,7 @@ VITE_API_URL="http://localhost:3000/api/v1"
 VITE_GOOGLE_CLIENT_ID=LAITA_TÄHÄN_OMA (Saa olla sama kuin ylemmässä .env)
 ```
 
-### 2. Admin-panelin asennus
+### 3. Admin-panelin asennus
 
 Paneeli tulee buildata ja se löytyy senjälkeen expressistä osoitteesta
 
@@ -768,7 +768,7 @@ Seuraa alla olevia ohjeita:
 8. **Käytä avainta backendissä**  
    - Tallenna service-account.json projektin juureen, samaan lokaatioon kuin .env tiedosto.
 
-### 2. API-avainten konfigurointi
+### API-avainten konfigurointi
 
 Kopioi Client ID ja Client Secret `.env` -tiedostoon:
 
