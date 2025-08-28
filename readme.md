@@ -761,6 +761,7 @@ Seuraa alla olevia ohjeita:
    - Tallenna tämä tiedosto palvelimelle sovelluksesi käyttöön ja nimeä se tarvittaessa `service-account.json`.
 
 6. **Anna käyttöoikeudet kalentereihin**
+   
    Jos käytössä on jo valmiiksi luotuja kalentereita seuraa ohjeita alta, muutoin admin-paneelista luodut kalenterit ovat service accountin omaisuutta eivätkä tarvitse erillisiä oikeuksia.
    - Avaa Google Calendar selaimessa  
    - Valitse kalenteri, jota sovellus käyttää  
