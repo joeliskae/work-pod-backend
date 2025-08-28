@@ -200,7 +200,7 @@ export const InfoPage: React.FC = () => {
           </p>
           <p>
             Sovelluksen lähdekoodi:{" "}
-            <span className="font-medium">[Repo-likki tulossa]</span>
+            <span className="font-medium"><a href="https://github.com/joeliskae/work-pod-backend/">[Repo Linkki]</a></span>
           </p>
         </div>
       </Card>
